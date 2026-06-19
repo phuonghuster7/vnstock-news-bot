@@ -35,14 +35,18 @@ def handle_tin(chat_id, symbol):
     # Dùng LLM hoặc lấy dữ liệu giả lập (thực tế sẽ gọi vnstock_news)
     send_message(chat_id, f"🔍 Đang tìm kiếm tin tức cho mã <b>{symbol.upper()}</b>...")
     # Tích hợp logic tìm tin (giả lập trả về tạm thời)
-    from experiments.scratch.run_intraday_alerts import call_llm_fallback
+    import sys
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    from run_intraday_alerts import call_llm_fallback
     prompt = f"Viết 1 nhận định siêu ngắn về cổ phiếu {symbol.upper()} hôm nay dựa trên những gì bạn biết."
     res = call_llm_fallback(prompt)
     send_message(chat_id, f"📰 <b>TIN TỨC {symbol.upper()}</b>\n{res}")
 
 def handle_soi(chat_id, symbol):
     send_message(chat_id, f"🧠 AI đang soi mã <b>{symbol.upper()}</b>...")
-    from experiments.scratch.run_intraday_alerts import call_llm_fallback
+    import sys
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    from run_intraday_alerts import call_llm_fallback
     prompt = f"Đóng vai chuyên gia phân tích kỹ thuật và cơ bản, đưa ra lời khuyên MUA/BÁN cho cổ phiếu {symbol.upper()}."
     res = call_llm_fallback(prompt)
     send_message(chat_id, f"🎯 <b>KHUYẾN NGHỊ {symbol.upper()}</b>\n{res}")

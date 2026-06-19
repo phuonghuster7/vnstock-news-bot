@@ -10,6 +10,7 @@ from datetime import datetime, timezone, timedelta
 import dateutil.parser as date_parser
 from urllib.parse import quote
 import json
+import time
 from vnstock import Quote
 try:
     from dotenv import load_dotenv
