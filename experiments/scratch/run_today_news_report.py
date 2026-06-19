@@ -10,6 +10,7 @@ from datetime import datetime, timezone, timedelta
 import dateutil.parser as date_parser
 from urllib.parse import quote
 import json
+from vnstock import Quote
 
 # Thiết lập encoding UTF-8 cho stdout trên Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -385,7 +386,35 @@ CATEGORY_META = {
     },
 }
 
-def build_html_report(clustered_data, output_path):
+def fetch_stock_prices(tickers):
+    """Lấy dữ liệu giá của danh sách mã chứng khoán trong 7 ngày qua để tính % thay đổi"""
+    prices = {}
+    if not tickers:
+        return prices
+    today = datetime.now()
+    start_date = (today - timedelta(days=10)).strftime('%Y-%m-%d')
+    end_date = today.strftime('%Y-%m-%d')
+    
+    print(f"Đang lấy dữ liệu giá cho {len(tickers)} mã: {', '.join(tickers)}")
+    for ticker in tickers:
+        try:
+            df = Quote("kbs", ticker).history(start=start_date, end=end_date)
+            if df is not None and not df.empty and len(df) >= 2:
+                current_price = df.iloc[-1]['close']
+                prev_price = df.iloc[-2]['close']
+                pct_change = ((current_price - prev_price) / prev_price) * 100
+                prices[ticker] = {
+                    "price": current_price,
+                    "change": pct_change
+                }
+        except Exception as e:
+            pass # Bỏ qua nếu lỗi (mã không tồn tại, v.v.)
+    return prices
+
+def build_html_report(clustered_data, output_path, stock_prices=None):
+    if stock_prices is None:
+        stock_prices = {}
+
     today_str = datetime.now().strftime("%d/%m/%Y")
     now_str = datetime.now().strftime("%H:%M:%S")
     weekday_names = ["Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy","Chủ Nhật"]
@@ -470,10 +499,22 @@ def build_html_report(clustered_data, output_path):
             if len(cluster["sources"]) > 4:
                 chips_html += f'<span class="multi-badge">+{len(cluster["sources"])-4}</span>'
 
-            # Dựng HTML cho mã cổ phiếu liên quan
+            # Dựng HTML cho mã cổ phiếu liên quan và thẻ giá
             tickers_html = ""
             for t in cluster.get("tickers", []):
-                tickers_html += f'<span class="ticker-badge">{t}</span>'
+                price_html = ""
+                if stock_prices and t in stock_prices:
+                    p_data = stock_prices[t]
+                    p_val = p_data["price"]
+                    c_val = p_data["change"]
+                    if c_val > 0:
+                        price_html = f'<span class="price-tag pos">{p_val:,.1f} (+{c_val:.1f}%)</span>'
+                    elif c_val < 0:
+                        price_html = f'<span class="price-tag neg">{p_val:,.1f} ({c_val:.1f}%)</span>'
+                    else:
+                        price_html = f'<span class="price-tag neu">{p_val:,.1f} (0.0%)</span>'
+                
+                tickers_html += f'<span class="ticker-badge">{t} {price_html}</span>'
 
             # Dựng HTML cho Sentiment badge
             sentiment = cluster.get("sentiment", "Trung lập")
@@ -601,6 +642,18 @@ def build_html_report(clustered_data, output_path):
             0%, 100% {{ opacity:1; transform:scale(1); }}
             50%        {{ opacity:0.3; transform:scale(0.6); }}
         }}
+        
+        /* PRICE TAGS */
+        .price-tag {{
+            font-size: 0.65rem;
+            margin-left: 4px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }}
+        .price-tag.pos {{ background: rgba(34,197,94,0.15); color: #4ade80; }}
+        .price-tag.neg {{ background: rgba(239,68,68,0.15); color: #f87171; }}
+        .price-tag.neu {{ background: rgba(234,179,8,0.15); color: #facc15; }}
 
         /* ══ APP BODY ══ */
         .app-body {{ display: flex; flex: 1; overflow: hidden; }}
@@ -904,6 +957,12 @@ def main():
     # Gom cụm tin trùng
     clustered_data = cluster_articles(filtered_articles)
     
+    # Lấy dữ liệu giá cho các mã xuất hiện trong tin tức
+    all_tickers = set()
+    for cluster in clustered_data:
+        all_tickers.update(cluster.get("tickers", []))
+    stock_prices = fetch_stock_prices(list(all_tickers))
+    
     # Cấu hình xuất file HTML
     if os.environ.get("GITHUB_ACTIONS"):
         # Chạy trên GitHub Actions -> lưu vào thư mục docs/ để serve GitHub Pages
@@ -911,13 +970,13 @@ def main():
         if not os.path.exists(docs_dir):
             os.makedirs(docs_dir)
         output_file = os.path.join(docs_dir, "index.html")
-        build_html_report(clustered_data, output_file)
+        build_html_report(clustered_data, output_file, stock_prices)
         print(f"\n✅ Đã xuất báo cáo tự động cho GitHub Pages: {output_file}")
     else:
         # Chạy cục bộ ở máy tính -> lưu ra Desktop
         desktop = get_desktop_path()
         output_file = os.path.join(desktop, "ban_tin_tai_chinh_hang_ngay.html")
-        build_html_report(clustered_data, output_file)
+        build_html_report(clustered_data, output_file, stock_prices)
         print(f"\n✅ Đã xuất báo cáo thành công ra Desktop: {output_file}")
 
 if __name__ == "__main__":
