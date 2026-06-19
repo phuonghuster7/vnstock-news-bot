@@ -1,0 +1,9 @@
+artifact_location: file:///mnt/d/Qlib-Vnstock/mlruns/496772460260699428
+creation_time: 1780906816620
+effective_trace_archival_retention: null
+experiment_id: '496772460260699428'
+last_update_time: 1780906816620
+lifecycle_stage: active
+name: live_ranking_retrain
+trace_location: null
+workspace: default

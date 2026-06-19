@@ -1,0 +1,9 @@
+artifact_location: file:///mnt/d/Qlib-Vnstock/mlruns/112709776422792709
+creation_time: 1780563338790
+effective_trace_archival_retention: null
+experiment_id: '112709776422792709'
+last_update_time: 1780563338790
+lifecycle_stage: active
+name: train_lgbm_vn30_v8
+trace_location: null
+workspace: default

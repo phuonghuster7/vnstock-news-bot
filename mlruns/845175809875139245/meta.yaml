@@ -1,0 +1,9 @@
+artifact_location: file:///mnt/d/Qlib-Vnstock/mlruns/845175809875139245
+creation_time: 1780901514394
+effective_trace_archival_retention: null
+experiment_id: '845175809875139245'
+last_update_time: 1780901514394
+lifecycle_stage: active
+name: test_foreign_flow
+trace_location: null
+workspace: default

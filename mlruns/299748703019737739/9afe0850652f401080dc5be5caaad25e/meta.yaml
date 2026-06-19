@@ -1,0 +1,14 @@
+artifact_uri: file:///mnt/d/Qlib-Vnstock/mlruns/299748703019737739/9afe0850652f401080dc5be5caaad25e/artifacts
+end_time: 1780557755175
+entry_point_name: ''
+experiment_id: '299748703019737739'
+lifecycle_stage: active
+run_id: 9afe0850652f401080dc5be5caaad25e
+run_name: mlflow_recorder
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1780557747636
+status: 3
+tags: []
+user_id: losbancos

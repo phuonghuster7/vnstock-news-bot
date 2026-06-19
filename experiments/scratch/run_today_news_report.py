@@ -412,8 +412,10 @@ def fetch_stock_prices(tickers):
                     "price": current_price,
                     "change": pct_change
                 }
+            # Ngủ 1.2s để tránh Rate Limit (60 req/min) của vnstock bản Community
+            time.sleep(1.2)
         except Exception as e:
-            pass # Bỏ qua nếu lỗi (mã không tồn tại, v.v.)
+            time.sleep(1.2) # Bỏ qua nếu lỗi (mã không tồn tại, v.v.)
     return prices
 
 def call_llm_fallback(prompt):

@@ -1,0 +1,9 @@
+artifact_location: file:///mnt/d/Qlib-Vnstock/mlruns/395798284861504472
+creation_time: 1780899784400
+effective_trace_archival_retention: null
+experiment_id: '395798284861504472'
+last_update_time: 1780899784400
+lifecycle_stage: active
+name: test_feat_momentum_accel_5d
+trace_location: null
+workspace: default

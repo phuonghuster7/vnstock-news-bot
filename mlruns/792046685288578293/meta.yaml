@@ -1,0 +1,9 @@
+artifact_location: file:///mnt/d/Qlib-Vnstock/mlruns/792046685288578293
+creation_time: 1780559538623
+effective_trace_archival_retention: null
+experiment_id: '792046685288578293'
+last_update_time: 1780559538623
+lifecycle_stage: active
+name: train_dataset_vn30.yaml
+trace_location: null
+workspace: default

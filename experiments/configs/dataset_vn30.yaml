@@ -1,0 +1,18 @@
+class: DatasetH
+kwargs:
+  handler:
+    class: DataHandlerLP
+    module_path: qlib.data.dataset.handler
+    kwargs:
+      instruments: vn30
+      start_time: 2018-01-01
+      end_time: 2026-06-01
+      label: ["Ref($close,-5)/$close-1"]
+  segments:
+    train: ["2018-01-01", "2022-12-31"]
+    valid: ["2023-01-01", "2023-12-31"]
+    test:  ["2024-01-01", "2026-06-01"]
+  segments:
+    train: ["2018-01-01", "2022-12-31"]
+    valid: ["2023-01-01", "2023-12-31"]
+    test:  ["2024-01-01", "2026-06-01"]

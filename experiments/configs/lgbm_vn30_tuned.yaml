@@ -1,0 +1,13 @@
+class: LGBModel
+kwargs:
+  bagging_fraction: 0.926004003096512
+  early_stopping_rounds: 100
+  feature_fraction: 0.6003968384888071
+  lambda_l1: 0.03125255401082437
+  lambda_l2: 0.03249760207810051
+  learning_rate: 0.03374886134893499
+  loss: mse
+  min_data_in_leaf: 41
+  num_boost_round: 1000
+  num_leaves: 59
+  verbose: -1

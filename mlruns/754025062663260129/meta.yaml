@@ -1,0 +1,9 @@
+artifact_location: file:///mnt/d/Qlib-Vnstock/mlruns/754025062663260129
+creation_time: 1780899811044
+effective_trace_archival_retention: null
+experiment_id: '754025062663260129'
+last_update_time: 1780899811044
+lifecycle_stage: active
+name: test_feat_vol_weighted_mom_5d
+trace_location: null
+workspace: default

@@ -1,0 +1,9 @@
+artifact_location: file:///mnt/d/Qlib-Vnstock/mlruns/249861149249374940
+creation_time: 1780900827471
+effective_trace_archival_retention: null
+experiment_id: '249861149249374940'
+last_update_time: 1780900827471
+lifecycle_stage: active
+name: wf_W5_2024H2
+trace_location: null
+workspace: default

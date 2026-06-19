@@ -1,0 +1,35 @@
+class: DatasetH
+kwargs:
+  handler:
+    class: DataHandlerLP
+    module_path: qlib.data.dataset.handler
+    kwargs:
+      instruments: vn30
+      start_time: 2018-01-01
+      end_time: 2026-06-01
+      label: ["Ref($close,-5)/$close-1"]
+      infer_processors:
+        - class: RobustZScoreNorm
+          kwargs:
+            fields_group: feature
+            clip_outlier: true
+            fit_start_time: "2018-01-01"
+            fit_end_time: "2022-12-31"
+        - class: CSRankNorm
+          module_path: vnstock_qlib.processors.cs_rank_norm
+          kwargs:
+            fields_group: feature
+            clip_outlier: true
+        - class: Fillna
+          kwargs:
+            fields_group: feature
+            fill_value: 0.0
+      learn_processors:
+        - class: DropnaLabel
+        - class: CSZScoreNorm
+          kwargs:
+            fields_group: label
+  segments:
+    train: ["2018-01-01", "2022-12-31"]
+    valid: ["2023-01-01", "2023-12-31"]
+    test:  ["2024-01-01", "2026-06-01"]

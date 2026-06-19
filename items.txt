@@ -1,0 +1,32 @@
+Thu nhập trên mỗi cổ phần của 4 quý gần nhất (EPS)
+Giá trị sổ sách của cổ phiếu (BVPS)
+Chỉ số giá thị trường trên thu nhập (P/E)
+Chỉ số giá thị trường trên giá trị sổ sách (P/B)
+Tỷ suất cổ tức
+Beta
+Tỷ suất lợi nhuận trên vốn chủ sở hữu bình quân (ROEA)
+Tỷ suất sinh lợi trên tổng tài sản bình quân (ROAA)
+Tỷ suất sinh lợi của Tài sản Có sinh lãi (YOEA)
+Tỷ lệ chi phí hình thành Tài sản Có sinh lãi (COF)
+Tỷ lệ thu nhập lãi thuần (NIM)
+Tỷ lệ chi phí hoạt động/Tổng thu nhập HĐKD trước dự phòng (CIR)
+ROE bình quân 4 quý gần nhất
+ROA bình quân 4 quý gần nhất
+Tăng trưởng lợi nhuận trước thuế 
+Tăng trưởng lợi nhuận sau thuế của CĐ ngân hàng mẹ
+Tăng trưởng tổng tài sản
+Tăng trưởng vốn chủ sở hữu
+Tăng trưởng vốn điều lệ
+Tăng trưởng dư nợ cho vay
+Tăng trưởng huy động vốn khách hàng
+Tăng trưởng thu nhập lãi thuần
+Tăng trưởng dự phòng rủi ro tín dụng
+Tăng trưởng thu phí dịch vụ thuần
+Tăng trưởng tổng thu nhập HĐKD trước dự phòng
+Tăng trưởng tổng chi phí HĐKD
+Dư nợ cho vay khách hàng/Tổng vốn huy động (LDR)
+Dư nợ cho vay/Tổng tài sản Có
+Vốn chủ sở hữu/Tổng vốn huy động 
+Vốn chủ sở hữu/Tổng tài sản Có
+Dự phòng rủi ro tín dụng/Tổng dư nợ
+Tài sản Có sinh lãi/Tổng tài sản Có

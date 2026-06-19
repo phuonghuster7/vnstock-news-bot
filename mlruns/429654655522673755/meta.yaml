@@ -1,0 +1,9 @@
+artifact_location: file:///mnt/d/Qlib-Vnstock/mlruns/429654655522673755
+creation_time: 1780899758284
+effective_trace_archival_retention: null
+experiment_id: '429654655522673755'
+last_update_time: 1780899758284
+lifecycle_stage: active
+name: test_feat_sharpe_momentum_20d
+trace_location: null
+workspace: default
