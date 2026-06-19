@@ -1,0 +1,7 @@
+# Danh mục cổ phiếu cá nhân
+# Hãy thêm các mã cổ phiếu bạn muốn theo dõi đặc biệt vào đây, mỗi mã 1 dòng (ví dụ HPG, VND)
+HPG
+VND
+SSI
+NVL
+VHM

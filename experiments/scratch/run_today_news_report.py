@@ -467,6 +467,80 @@ def call_llm_fallback(prompt):
 
     return ""
 
+def load_watchlist():
+    """Đọc file watchlist.txt nếu có"""
+    watchlist = []
+    watchlist_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "watchlist.txt")
+    if os.path.exists(watchlist_path):
+        with open(watchlist_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip().upper()
+                if line and not line.startswith("#"):
+                    watchlist.append(line)
+    return watchlist
+
+def send_telegram_alerts(clustered_data, stock_prices, ai_summaries, watchlist):
+    """Gửi cảnh báo Telegram cho các cụm tin nóng hoặc thuộc danh mục quan tâm"""
+    token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+    if not token or not chat_id:
+        return
+        
+    print("📲 Đang gửi tin nóng qua Telegram...")
+    
+    messages_to_send = []
+    
+    for idx, cluster in enumerate(clustered_data):
+        rep = cluster["representative"]
+        tickers = cluster.get("tickers", [])
+        
+        # Kiểm tra xem tin có thuộc watchlist không
+        in_watchlist = any(t in watchlist for t in tickers)
+        
+        # Chỉ gửi tin thuộc watchlist HOẶC là tin rất nóng (nhiều báo đăng)
+        if in_watchlist or len(cluster["sources"]) >= 3:
+            title = rep["title"]
+            ai_sum = ai_summaries.get(idx, "")
+            
+            # Format Price Tags
+            price_text = ""
+            for t in tickers:
+                if t in stock_prices:
+                    p = stock_prices[t]
+                    icon = "🟢" if p["change"] > 0 else "🔴" if p["change"] < 0 else "🟡"
+                    price_text += f"\n{icon} {t}: {p['price']:,.1f} ({p['change']:.1f}%)"
+            
+            # Xây dựng nội dung tin nhắn
+            msg = ""
+            if in_watchlist:
+                msg += "⭐ <b>TIN DANH MỤC CỦA BẠN</b>\n"
+            else:
+                msg += "🔥 <b>TIN NÓNG THỊ TRƯỜNG</b>\n"
+                
+            msg += f"<b>{html.escape(title)}</b>\n"
+            if ai_sum:
+                msg += f"\n🪄 <i>{html.escape(ai_sum)}</i>\n"
+                
+            if price_text:
+                msg += f"\n📈 <b>Biến động giá:</b>{price_text}\n"
+                
+            msg += f"\n🔗 <a href='{cluster['sources'][0]['link']}'>Đọc chi tiết</a>"
+            messages_to_send.append(msg)
+            
+    # Gửi lần lượt qua Telegram API
+    for msg in messages_to_send[:10]: # Tối đa 10 tin để tránh spam
+        try:
+            url = f"https://api.telegram.org/bot{token}/sendMessage"
+            payload = {
+                "chat_id": chat_id,
+                "text": msg,
+                "parse_mode": "HTML",
+                "disable_web_page_preview": True
+            }
+            requests.post(url, json=payload, timeout=5)
+        except Exception as e:
+            print("Lỗi gửi Telegram:", e)
+
 def summarize_clusters_with_ai(clustered_data):
     """Sử dụng cơ chế Fallback (Gemini -> DeepSeek -> OpenAI) để tóm tắt các cụm tin"""
     summaries = {}
@@ -488,18 +562,37 @@ def summarize_clusters_with_ai(clustered_data):
                 
     return summaries
 
-def build_html_report(clustered_data, output_path, stock_prices=None, ai_summaries=None):
+def build_html_report(clustered_data, output_path, stock_prices=None, ai_summaries=None, watchlist=None):
     if stock_prices is None:
         stock_prices = {}
     if ai_summaries is None:
         ai_summaries = {}
+    if watchlist is None:
+        watchlist = []
 
     today_str = datetime.now().strftime("%d/%m/%Y")
     now_str = datetime.now().strftime("%H:%M:%S")
     weekday_names = ["Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy","Chủ Nhật"]
     weekday_str = weekday_names[datetime.now().weekday()]
 
-    categories_order = ["Tin Doanh nghiệp & Cổ phiếu"] + list(THEMATIC_KEYWORDS.keys()) + ["Thời sự & Tin tức khác"]
+    # Phân loại thêm "⭐ Danh mục Của Tôi"
+    for cluster in clustered_data:
+        tickers = cluster.get("tickers", [])
+        if any(t in watchlist for t in tickers):
+            cluster["representative"]["category"] = "⭐ Danh mục Của Tôi"
+
+    categories_order = ["⭐ Danh mục Của Tôi", "Tin Doanh nghiệp & Cổ phiếu"] + list(THEMATIC_KEYWORDS.keys()) + ["Thời sự & Tin tức khác"]
+    
+    # Định nghĩa màu sắc cho Danh mục của Tôi
+    CATEGORY_META["⭐ Danh mục Của Tôi"] = {
+        "icon": "fa-star",
+        "color": "#f59e0b",
+        "glow": "rgba(245,158,11,0.15)",
+        "border": "rgba(245,158,11,0.35)",
+        "badge_bg": "rgba(245,158,11,0.15)",
+        "badge_text": "#fbbf24",
+    }
+
     # Chỉ giữ category có tin
     active_cats = [c for c in categories_order if any(
         cl["representative"].get("category") == c for cl in clustered_data
@@ -1070,6 +1163,12 @@ def main():
     # AI Tóm tắt
     ai_summaries = summarize_clusters_with_ai(clustered_data)
     
+    # Đọc Watchlist
+    watchlist = load_watchlist()
+    
+    # Gửi Telegram Alert
+    send_telegram_alerts(clustered_data, stock_prices, ai_summaries, watchlist)
+    
     # Cấu hình xuất file HTML
     if os.environ.get("GITHUB_ACTIONS"):
         # Chạy trên GitHub Actions -> lưu vào thư mục docs/ để serve GitHub Pages
@@ -1077,13 +1176,13 @@ def main():
         if not os.path.exists(docs_dir):
             os.makedirs(docs_dir)
         output_file = os.path.join(docs_dir, "index.html")
-        build_html_report(clustered_data, output_file, stock_prices, ai_summaries)
+        build_html_report(clustered_data, output_file, stock_prices, ai_summaries, watchlist)
         print(f"\n✅ Đã xuất báo cáo tự động cho GitHub Pages: {output_file}")
     else:
         # Chạy cục bộ ở máy tính -> lưu ra Desktop
         desktop = get_desktop_path()
         output_file = os.path.join(desktop, "ban_tin_tai_chinh_hang_ngay.html")
-        build_html_report(clustered_data, output_file, stock_prices, ai_summaries)
+        build_html_report(clustered_data, output_file, stock_prices, ai_summaries, watchlist)
         print(f"\n✅ Đã xuất báo cáo thành công ra Desktop: {output_file}")
 
 if __name__ == "__main__":
