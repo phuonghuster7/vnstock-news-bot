@@ -411,9 +411,48 @@ def fetch_stock_prices(tickers):
             pass # Bỏ qua nếu lỗi (mã không tồn tại, v.v.)
     return prices
 
-def build_html_report(clustered_data, output_path, stock_prices=None):
+def summarize_clusters_with_ai(clustered_data):
+    """Sử dụng Gemini API để tóm tắt các cụm tin có nhiều bài viết hoặc thuộc nhóm cổ phiếu"""
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        print("⚠️ Không tìm thấy GEMINI_API_KEY, bỏ qua bước AI tóm tắt.")
+        return {}
+    
+    try:
+        from google import genai
+        client = genai.Client(api_key=api_key)
+    except ImportError:
+        print("⚠️ Thư viện google-genai chưa được cài đặt, bỏ qua bước AI tóm tắt.")
+        return {}
+    except Exception as e:
+        print("⚠️ Lỗi khởi tạo Gemini API:", e)
+        return {}
+        
+    summaries = {}
+    print("🤖 Đang nhờ AI tóm tắt các cụm tin chính...")
+    for idx, cluster in enumerate(clustered_data):
+        # Chỉ tóm tắt những cụm có >= 2 nguồn HOẶC thuộc nhóm cổ phiếu
+        if len(cluster["sources"]) >= 2 or cluster["representative"].get("category") == "Tin Doanh nghiệp & Cổ phiếu":
+            titles = [s["title"] for s in cluster["sources"]]
+            titles_text = "\n- ".join(titles[:5]) # Lấy tối đa 5 bài
+            prompt = f"Dựa vào các tiêu đề bài báo sau đây về cùng một sự kiện, hãy viết ĐÚNG 1 CÂU tóm tắt ngắn gọn nhất bản chất sự kiện và đánh giá tác động (nếu có). Không in đậm, không format, không xuống dòng.\n\nTiêu đề:\n- {titles_text}"
+            try:
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt,
+                )
+                if response.text:
+                    summaries[idx] = response.text.strip().replace("\n", " ")
+            except Exception as e:
+                pass # Bỏ qua lỗi timeout hoặc rate limit
+                
+    return summaries
+
+def build_html_report(clustered_data, output_path, stock_prices=None, ai_summaries=None):
     if stock_prices is None:
         stock_prices = {}
+    if ai_summaries is None:
+        ai_summaries = {}
 
     today_str = datetime.now().strftime("%d/%m/%Y")
     now_str = datetime.now().strftime("%H:%M:%S")
@@ -527,11 +566,22 @@ def build_html_report(clustered_data, output_path, stock_prices=None):
                 else:
                     sentiment_html = '<span class="sentiment-badge neu">⚪ Trung lập</span>'
 
+            # Dựng HTML cho AI Summary (nếu có)
+            # index của cluster trong clustered_data (cần map đúng, ở đây ta sẽ dùng logic tìm lại index gốc hoặc gán id)
+            # Thay vì truyền id, ta sẽ so sánh reference
+            cluster_idx = clustered_data.index(cluster)
+            ai_summary_text = ai_summaries.get(cluster_idx, "")
+            
+            ai_html = ""
+            if ai_summary_text:
+                ai_html = f'<div class="ai-summary"><i class="fa-solid fa-wand-magic-sparkles"></i> <strong>AI Tóm tắt:</strong> {html.escape(ai_summary_text)}</div>'
+
             cards_html += f"""
             <div class="news-card">
                 <div class="news-content-inline">
                     {tickers_html} {sentiment_html}
                     <a href="{main_link}" target="_blank" class="news-headline-link">{title_safe}</a>
+                    {ai_html}
                     <span class="news-meta">
                         <i class="fa-regular fa-clock"></i>
                         <span class="meta-time">{time_str}</span>
@@ -654,6 +704,20 @@ def build_html_report(clustered_data, output_path, stock_prices=None):
         .price-tag.pos {{ background: rgba(34,197,94,0.15); color: #4ade80; }}
         .price-tag.neg {{ background: rgba(239,68,68,0.15); color: #f87171; }}
         .price-tag.neu {{ background: rgba(234,179,8,0.15); color: #facc15; }}
+        
+        /* AI SUMMARY */
+        .ai-summary {{
+            font-size: 0.72rem;
+            color: #475569;
+            background: rgba(139,92,246,0.05);
+            border-left: 3px solid #8b5cf6;
+            padding: 6px 10px;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            border-radius: 0 6px 6px 0;
+            line-height: 1.4;
+        }}
+        .ai-summary i {{ color: #8b5cf6; margin-right: 4px; }}
 
         /* ══ APP BODY ══ */
         .app-body {{ display: flex; flex: 1; overflow: hidden; }}
@@ -963,6 +1027,9 @@ def main():
         all_tickers.update(cluster.get("tickers", []))
     stock_prices = fetch_stock_prices(list(all_tickers))
     
+    # AI Tóm tắt
+    ai_summaries = summarize_clusters_with_ai(clustered_data)
+    
     # Cấu hình xuất file HTML
     if os.environ.get("GITHUB_ACTIONS"):
         # Chạy trên GitHub Actions -> lưu vào thư mục docs/ để serve GitHub Pages
@@ -970,13 +1037,13 @@ def main():
         if not os.path.exists(docs_dir):
             os.makedirs(docs_dir)
         output_file = os.path.join(docs_dir, "index.html")
-        build_html_report(clustered_data, output_file, stock_prices)
+        build_html_report(clustered_data, output_file, stock_prices, ai_summaries)
         print(f"\n✅ Đã xuất báo cáo tự động cho GitHub Pages: {output_file}")
     else:
         # Chạy cục bộ ở máy tính -> lưu ra Desktop
         desktop = get_desktop_path()
         output_file = os.path.join(desktop, "ban_tin_tai_chinh_hang_ngay.html")
-        build_html_report(clustered_data, output_file, stock_prices)
+        build_html_report(clustered_data, output_file, stock_prices, ai_summaries)
         print(f"\n✅ Đã xuất báo cáo thành công ra Desktop: {output_file}")
 
 if __name__ == "__main__":

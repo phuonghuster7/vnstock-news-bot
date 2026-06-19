@@ -29,6 +29,7 @@ jobs:
       - name: Run News Scraper
         env:
           GITHUB_ACTIONS: "true"
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python experiments/scratch/run_today_news_report.py
 
       - name: Commit and push changes
