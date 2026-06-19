@@ -468,15 +468,18 @@ def call_llm_fallback(prompt):
     return ""
 
 def load_watchlist():
-    """Đọc file watchlist.txt nếu có"""
+    """Sử dụng toàn bộ mã trong rổ VN100 làm Watchlist"""
     watchlist = []
-    watchlist_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "watchlist.txt")
-    if os.path.exists(watchlist_path):
-        with open(watchlist_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip().upper()
-                if line and not line.startswith("#"):
-                    watchlist.append(line)
+    print("Đang lấy danh mục VN100 làm Watchlist...")
+    try:
+        from vnstock import Listing
+        listing = Listing(source="kbs")
+        vn100_df = listing.indices(index="VN100")
+        if vn100_df is not None and not vn100_df.empty:
+            if 'ticker' in vn100_df.columns:
+                watchlist = vn100_df['ticker'].tolist()
+    except Exception as e:
+        print("Lỗi lấy danh mục VN100:", e)
     return watchlist
 
 def send_telegram_alerts(clustered_data, stock_prices, ai_summaries, watchlist):
