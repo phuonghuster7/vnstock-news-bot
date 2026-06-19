@@ -2,8 +2,8 @@ name: Auto Update News Report
 
 on:
   schedule:
-    # 1. Báo cáo cuối ngày: Chạy mỗi giờ từ 00:00 UTC đến 12:00 UTC
-    - cron: '0 0-12 * * 1-5'
+    # 1. Báo cáo cuối ngày: Chạy mỗi 30 phút từ 00:00 UTC đến 12:00 UTC (7h sáng - 7h tối VN)
+    - cron: '*/30 0-12 * * 1-5'
     # 2. Cảnh báo Intraday: Chạy mỗi 30 phút trong giờ giao dịch (02:00 UTC đến 08:00 UTC)
     - cron: '*/30 2-8 * * 1-5'
     # 3. Chatbot Polling: Chạy mỗi 5 phút liên tục 24/7
@@ -61,8 +61,8 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python experiments/scratch/run_intraday_alerts.py
 
-      - name: Run Daily Scraper (every hour)
-        if: github.event.schedule == '0 0-12 * * 1-5' || github.event_name == 'workflow_dispatch'
+      - name: Run Daily Scraper (every 30 mins)
+        if: github.event.schedule == '*/30 0-12 * * 1-5' || github.event_name == 'workflow_dispatch'
         env:
           GITHUB_ACTIONS: "true"
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
