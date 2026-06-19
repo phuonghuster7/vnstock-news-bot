@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Tin Tài Chính - 19/06/2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:        #f0f2f7;
+            --surface:   #ffffff;
+            --surface2:  #f7f8fc;
+            --border:    #dde3ee;
+            --text:      #1e2535;
+            --muted:     #6b7a99;
+            --muted2:    #9aa3b8;
+            --sb-bg:     #1c2140;
+            --sb-border: #2a3160;
+            --sb-text:   #c8d0ec;
+            --sb-muted:  #6b78a8;
+            --sidebar-w: 265px;
+            --header-h:  60px;
+            --radius:    12px;
+        }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ══ TOP HEADER ══ */
+        .top-header {
+            height: var(--header-h);
+            min-height: var(--header-h);
+            background: var(--sb-bg);
+            border-bottom: 1px solid var(--sb-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand-logo {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, #5b7fff, #9b5cf6);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; flex-shrink: 0;
+        }
+        .brand-title { font-size: 0.9rem; font-weight: 700; color: #e8edf8; letter-spacing: -0.1px; }
+        .brand-sub { font-size: 0.62rem; color: var(--sb-muted); margin-top: 1px; }
+        .header-meta {
+            display: flex; align-items: center;
+            gap: 14px; font-size: 0.7rem; color: var(--sb-muted);
+        }
+        .header-meta span { display: flex; align-items: center; gap: 4px; }
+        .header-meta i { color: #7b9fff; font-size: 0.68rem; }
+        .live-pill {
+            display: flex; align-items: center; gap: 5px;
+            background: rgba(34,197,94,0.15);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 20px; padding: 3px 9px;
+            font-size: 0.65rem; color: #4ade80;
+            font-weight: 700; letter-spacing: 0.05em;
+        }
+        .live-dot {
+            width: 5px; height: 5px; background: #22c55e;
+            border-radius: 50%; animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity:1; transform:scale(1); }
+            50%        { opacity:0.3; transform:scale(0.6); }
+        }
+
+        /* ══ APP BODY ══ */
+        .app-body { display: flex; flex: 1; overflow: hidden; }
+
+        /* ══ SIDEBAR ══ */
+        .sidebar {
+            width: var(--sidebar-w);
+            min-width: var(--sidebar-w);
+            background: var(--sb-bg);
+            border-right: 1px solid var(--sb-border);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .sidebar-header {
+            padding: 14px 14px 10px;
+            border-bottom: 1px solid var(--sb-border);
+            flex-shrink: 0;
+        }
+        .sidebar-label {
+            font-size: 0.58rem; text-transform: uppercase;
+            letter-spacing: 0.12em; color: var(--sb-muted);
+            font-weight: 700; margin-bottom: 2px;
+        }
+        .sidebar-total { font-size: 0.73rem; color: var(--sb-muted); }
+        .sidebar-total strong { color: #7b9fff; font-weight: 700; }
+        .nav-list { flex: 1; overflow-y: auto; padding: 6px; }
+        .nav-list::-webkit-scrollbar { width: 3px; }
+        .nav-list::-webkit-scrollbar-thumb { background: var(--sb-border); border-radius: 3px; }
+
+        .nav-item {
+            display: flex; align-items: center;
+            gap: 9px; padding: 10px 11px;
+            border-radius: 10px; cursor: pointer;
+            border: 1px solid transparent;
+            margin-bottom: 3px;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+        }
+        .nav-item.active {
+            background: var(--cat-glow, rgba(91,127,255,0.18));
+            border-color: var(--cat-border, rgba(91,127,255,0.4));
+        }
+        .nav-item.active .nav-name { color: var(--cat-color, #7b9fff); font-weight: 700; }
+        .nav-item.active .nav-arrow { opacity: 1; color: var(--cat-color); }
+
+        .nav-num { font-size: 0.58rem; font-weight: 800; color: var(--sb-muted); width: 14px; text-align: center; flex-shrink: 0; }
+        .nav-icon-wrap { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; flex-shrink: 0; }
+        .nav-text { flex: 1; min-width: 0; }
+        .nav-name { font-size: 0.8rem; font-weight: 500; color: var(--sb-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .nav-count { font-size: 0.63rem; color: var(--sb-muted); margin-top: 1px; }
+        .nav-arrow { font-size: 0.55rem; color: var(--sb-muted); opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+        .nav-item:hover .nav-arrow { opacity: 0.5; }
+        .sidebar-footer {
+            padding: 10px 14px; border-top: 1px solid var(--sb-border);
+            font-size: 0.6rem; color: var(--sb-muted); flex-shrink: 0;
+        }
+
+        /* ══ CONTENT AREA ══ */
+        .content-area { flex: 1; overflow-y: auto; background: var(--bg); }
+        .content-area::-webkit-scrollbar { width: 5px; }
+        .content-area::-webkit-scrollbar-thumb { background: #c8d0e0; border-radius: 5px; }
+
+        .content-panel { display: none; padding: 20px 24px; }
+        .content-panel.active { display: block; animation: fadeIn 0.18s ease; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ── Panel header ── */
+        .panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 18px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 16px; gap: 12px;
+            border-left: 4px solid;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .panel-header-left { display: flex; align-items: center; gap: 12px; }
+        .panel-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .panel-title { font-size: 0.95rem; font-weight: 700; color: var(--text); letter-spacing: -0.1px; }
+        .panel-subtitle { font-size: 0.67rem; color: var(--muted); margin-top: 2px; }
+        .panel-badge {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 0.68rem; font-weight: 700;
+            padding: 4px 10px; border-radius: 20px; flex-shrink: 0;
+        }
+
+        /* ══ NEWS CARD LIST - Headline only ══ */
+        .cards-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .news-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            transition: border-left-color 0.15s, background 0.12s;
+        }
+        .news-card:hover {
+            border-left-color: #5b7fff;
+            background: #f5f7fd;
+        }
+        .news-content-inline {
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+        .news-headline-link {
+            font-weight: 700;
+            color: #111827;
+            text-decoration: none;
+        }
+        .news-headline-link:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        .news-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            color: var(--muted2);
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+        .ticker-badge {
+            display: inline-block;
+            background: rgba(6,182,212,0.12);
+            color: #0891b2;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin-right: 6px;
+            border: 1px solid rgba(6,182,212,0.25);
+            vertical-align: middle;
+        }
+        .sentiment-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .sentiment-badge.pos {
+            background: rgba(34,197,94,0.12);
+            color: #166534;
+            border: 1px solid rgba(34,197,94,0.3);
+        }
+        .sentiment-badge.neg {
+            background: rgba(239,68,68,0.12);
+            color: #991b1b;
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+        .sentiment-badge.neu {
+            background: rgba(100,116,139,0.12);
+            color: #475569;
+            border: 1px solid rgba(100,116,139,0.3);
+        }
+        .news-meta i { font-size: 0.65rem; }
+        .meta-time { color: var(--muted2); font-weight: 500; }
+        .meta-sep { color: #c4ccd8; }
+        .src-chip {
+            color: #4f6dc8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.12s;
+        }
+        .src-chip:hover { color: #2d4ea8; text-decoration: underline; }
+        .multi-badge { font-size: 0.62rem; color: var(--muted2); }
+    </style>
+</head>
+<body>
+
+<!-- TOP HEADER -->
+<div class="top-header">
+    <div class="brand">
+        <div class="brand-logo"><i class="fa-solid fa-chart-mixed" style="color:#fff;"></i></div>
+        <div>
+            <div class="brand-title">BẢN TIN TÀI CHÍNH THÔNG MINH</div>
+            <div class="brand-sub">Tổng hợp đa nguồn · Khử trùng lặp · Phân loại tự động</div>
+        </div>
+    </div>
+    <div class="header-meta">
+        <span><i class="fa-regular fa-calendar"></i> Thứ Sáu, 19/06/2026</span>
+        <span><i class="fa-regular fa-clock"></i> 09:32:10</span>
+        <span><i class="fa-solid fa-database"></i> 118 bài · 113 cụm</span>
+        <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+    </div>
+</div>
+
+<!-- APP BODY -->
+<div class="app-body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-label"><i class="fa-solid fa-list-ul"></i> &nbsp;Danh mục</div>
+            <div class="sidebar-total">
+                <strong>7</strong> nhóm · <strong>113</strong> tin
+            </div>
+        </div>
+        <div class="nav-list">
+            
+        <div class="nav-item active" data-target="cat_0"
+             style="--cat-color:#06b6d4;--cat-glow:rgba(6,182,212,0.12);--cat-border:rgba(6,182,212,0.35);">
+            <div class="nav-num">1</div>
+            <div class="nav-icon-wrap" style="background:rgba(6,182,212,0.15);">
+                <i class="fa-solid fa-building-columns" style="color:#06b6d4;"></i>
+            </div>
+            <div class="nav-text">
+                <div class="nav-name">Tin Doanh nghiệp & Cổ phiếu</div>
+                <div class="nav-count">12 tin</div>
+            </div>
+            <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="nav-item" data-target="cat_1"
+             style="--cat-color:#f59e0b;--cat-glow:rgba(245,158,11,0.15);--cat-border:rgba(245,158,11,0.35);">
+            <div class="nav-num">2</div>
+            <div class="nav-icon-wrap" style="background:rgba(245,158,11,0.15);">
+                <i class="fa-solid fa-coins" style="color:#f59e0b;"></i>
+            </div>
+            <div class="nav-text">
+                <div class="nav-name">Lãi suất & Tiền tệ</div>
+                <div class="nav-count">18 tin</div>
+            </div>
+            <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="nav-item" data-target="cat_2"
+             style="--cat-color:#ef4444;--cat-glow:rgba(239,68,68,0.15);--cat-border:rgba(239,68,68,0.35);">
+            <div class="nav-num">3</div>
+            <div class="nav-icon-wrap" style="background:rgba(239,68,68,0.15);">
+                <i class="fa-solid fa-globe" style="color:#ef4444;"></i>
+            </div>
+            <div class="nav-text">
+                <div class="nav-name">Địa chính trị & Vĩ mô Toàn cầu</div>
+                <div class="nav-count">14 tin</div>
+            </div>
+            <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="nav-item" data-target="cat_3"
+             style="--cat-color:#8b5cf6;--cat-glow:rgba(139,92,246,0.15);--cat-border:rgba(139,92,246,0.35);">
+            <div class="nav-num">4</div>
+            <div class="nav-icon-wrap" style="background:rgba(139,92,246,0.15);">
+                <i class="fa-solid fa-earth-americas" style="color:#8b5cf6;"></i>
+            </div>
+            <div class="nav-text">
+                <div class="nav-name">Kinh tế Thế giới</div>
+                <div class="nav-count">10 tin</div>
+            </div>
+            <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="nav-item" data-target="cat_4"
+             style="--cat-color:#10b981;--cat-glow:rgba(16,185,129,0.15);--cat-border:rgba(16,185,129,0.35);">
+            <div class="nav-num">5</div>
+            <div class="nav-icon-wrap" style="background:rgba(16,185,129,0.15);">
+                <i class="fa-solid fa-landmark" style="color:#10b981;"></i>
+            </div>
+            <div class="nav-text">
+                <div class="nav-name">Vĩ mô Việt Nam & Chính sách</div>
+                <div class="nav-count">10 tin</div>
+            </div>
+            <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="nav-item" data-target="cat_5"
+             style="--cat-color:#3b82f6;--cat-glow:rgba(59,130,246,0.15);--cat-border:rgba(59,130,246,0.35);">
+            <div class="nav-num">6</div>
+            <div class="nav-icon-wrap" style="background:rgba(59,130,246,0.15);">
+                <i class="fa-solid fa-chart-line" style="color:#3b82f6;"></i>
+            </div>
+            <div class="nav-text">
+                <div class="nav-name">Chứng khoán & Doanh nghiệp nổi bật</div>
+                <div class="nav-count">15 tin</div>
+            </div>
+            <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="nav-item" data-target="cat_6"
+             style="--cat-color:#64748b;--cat-glow:rgba(100,116,139,0.10);--cat-border:rgba(100,116,139,0.30);">
+            <div class="nav-num">7</div>
+            <div class="nav-icon-wrap" style="background:rgba(100,116,139,0.15);">
+                <i class="fa-solid fa-newspaper" style="color:#64748b;"></i>
+            </div>
+            <div class="nav-text">
+                <div class="nav-name">Thời sự & Tin tức khác</div>
+                <div class="nav-count">34 tin</div>
+            </div>
+            <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        </div>
+        <div class="sidebar-footer">
+            <i class="fa-solid fa-rss"></i> 9 nguồn RSS · 19/06/2026
+        </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content-area">
+        
+        <div class="content-panel active" id="cat_0">
+            <div class="panel-header" style="border-left:4px solid #06b6d4;background:rgba(6,182,212,0.12);">
+                <div class="panel-header-left">
+                    <div class="panel-icon" style="background:rgba(6,182,212,0.15);">
+                        <i class="fa-solid fa-building-columns" style="color:#06b6d4;font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div class="panel-title" style="color:#06b6d4;">Tin Doanh nghiệp & Cổ phiếu</div>
+                        <div class="panel-subtitle">12 cụm tin · 12 bài gốc</div>
+                    </div>
+                </div>
+                <span class="panel-badge" style="background:rgba(6,182,212,0.15);color:#22d3ee;border:1px solid rgba(6,182,212,0.35);">
+                    <i class="fa-solid fa-layer-group"></i> 12 tin
+                </span>
+            </div>
+            <div class="cards-grid">
+                
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">NVL</span> <span class="sentiment-badge neu">⚪ Trung lập</span>
+                    <a href="https://cafef.vn/giam-hon-30-tu-dinh-novaland-phat-thong-bao-quan-trong-ve-ke-hoach-phat-hanh-hon-17-ty-co-phieu-188260619162353025.chn" target="_blank" class="news-headline-link">Giảm hơn 30% từ đỉnh, Novaland phát thông báo quan trọng về kế hoạch phát hành hơn 1,7 tỷ cổ phiếu</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">16:26 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/giam-hon-30-tu-dinh-novaland-phat-thong-bao-quan-trong-ve-ke-hoach-phat-hanh-hon-17-ty-co-phieu-188260619162353025.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">ABB</span> <span class="sentiment-badge pos">🟢 Tích cực</span>
+                    <a href="https://vneconomy.vn/ngan-hang-an-binh-duoc-chap-thuan-tang-von-dieu-le-them-6100-ty.htm" target="_blank" class="news-headline-link">Ngân hàng An Bình được chấp thuận tăng vốn điều lệ thêm 6.100 tỷ</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">09:00 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/ngan-hang-an-binh-duoc-chap-thuan-tang-von-dieu-le-them-6100-ty.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">NLG</span> <span class="sentiment-badge neu">⚪ Trung lập</span>
+                    <a href="https://cafef.vn/nam-long-bi-xu-phat-vi-cham-dang-ky-luu-ky-trai-phieu-188260619141924917.chn" target="_blank" class="news-headline-link">Nam Long bị xử phạt vì chậm đăng ký, lưu ký trái phiếu</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">14:24 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/nam-long-bi-xu-phat-vi-cham-dang-ky-luu-ky-trai-phieu-188260619141924917.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">ACV</span> <span class="sentiment-badge neu">⚪ Trung lập</span>
+                    <a href="https://cafef.vn/ong-nguyen-cao-cuong-lam-chu-tich-hoi-dong-quan-tri-acv-18826061912433824.chn" target="_blank" class="news-headline-link">Ông Nguyễn Cao Cường làm Chủ tịch Hội đồng quản trị ACV</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">13:38 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/ong-nguyen-cao-cuong-lam-chu-tich-hoi-dong-quan-tri-acv-18826061912433824.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">AIG</span> <span class="sentiment-badge neu">⚪ Trung lập</span>
+                    <a href="https://vneconomy.vn/tap-doan-nguyen-lieu-a-chau-aig-khang-dinh-uy-tin-tam-voc-thuong-hieu-quoc-te.htm" target="_blank" class="news-headline-link">Tập đoàn Nguyên liệu Á Châu (AIG) khẳng định uy tín, tầm vóc thương hiệu quốc tế</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">05:05 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/tap-doan-nguyen-lieu-a-chau-aig-khang-dinh-uy-tin-tam-voc-thuong-hieu-quoc-te.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">ACB</span> <span class="sentiment-badge pos">🟢 Tích cực</span>
+                    <a href="https://vneconomy.vn/co-dong-lon-cua-acb-tiep-tuc-tang-so-huu-len-hon-9.htm" target="_blank" class="news-headline-link">Cổ đông lớn của ACB tiếp tục tăng sở hữu lên hơn 9%</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">02:09 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/co-dong-lon-cua-acb-tiep-tuc-tang-so-huu-len-hon-9.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">ITC</span> <span class="sentiment-badge pos">🟢 Tích cực</span>
+                    <a href="https://cafef.vn/becamex-itc-tat-toan-lo-trai-phieu-phat-hanh-nam-2019-188260619081904327.chn" target="_blank" class="news-headline-link">Becamex ITC tất toán lô trái phiếu phát hành năm 2019</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">09:01 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/becamex-itc-tat-toan-lo-trai-phieu-phat-hanh-nam-2019-188260619081904327.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">ACV</span> <span class="sentiment-badge neu">⚪ Trung lập</span>
+                    <a href="https://cafef.vn/acv-du-kien-bau-bo-sung-pho-tong-giam-doc-vao-hoi-dong-quan-tri-188260619080829454.chn" target="_blank" class="news-headline-link">ACV dự kiến bầu bổ sung phó tổng giám đốc vào hội đồng quản trị</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:31 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/acv-du-kien-bau-bo-sung-pho-tong-giam-doc-vao-hoi-dong-quan-tri-188260619080829454.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">VCI</span> <span class="sentiment-badge neu">⚪ Trung lập</span>
+                    <a href="https://cafef.vn/vietcap-vay-von-tu-9-dinh-che-tai-chinh-hang-dau-chau-a-quy-mo-co-the-len-gan-10000-ty-dong-188260619080302992.chn" target="_blank" class="news-headline-link">Vietcap vay vốn từ 9 định chế tài chính hàng đầu châu Á, quy mô có thể lên gần 10.000 tỷ đồng</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:02 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/vietcap-vay-von-tu-9-dinh-che-tai-chinh-hang-dau-chau-a-quy-mo-co-the-len-gan-10000-ty-dong-188260619080302992.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">VHM</span><span class="ticker-badge">VRE</span><span class="ticker-badge">VIC</span> <span class="sentiment-badge pos">🟢 Tích cực</span>
+                    <a href="https://cafef.vn/ly-do-co-phieu-ho-vin-tang-manh-188260618170758945.chn" target="_blank" class="news-headline-link">Lý do cổ phiếu &#39;họ Vin&#39; tăng mạnh</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">17:19 18/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/ly-do-co-phieu-ho-vin-tang-manh-188260618170758945.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">CTS</span><span class="ticker-badge">CTG</span> <span class="sentiment-badge pos">🟢 Tích cực</span>
+                    <a href="https://cafef.vn/chung-khoan-vietinbank-duoc-chap-thuan-tham-gia-he-thong-giao-dich-carbon-188260618165050862.chn" target="_blank" class="news-headline-link">Chứng khoán VietinBank được chấp thuận tham gia hệ thống giao dịch carbon</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">16:52 18/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/chung-khoan-vietinbank-duoc-chap-thuan-tham-gia-he-thong-giao-dich-carbon-188260618165050862.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">MSB</span> <span class="sentiment-badge pos">🟢 Tích cực</span>
+                    <a href="https://cafef.vn/co-phieu-msb-vuot-dinh-lich-su-von-hoa-dat-gan-19-ty-usd-188260618165129568.chn" target="_blank" class="news-headline-link">Cổ phiếu MSB vượt đỉnh lịch sử, vốn hóa đạt gần 1,9 tỷ USD</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">16:51 18/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/co-phieu-msb-vuot-dinh-lich-su-von-hoa-dat-gan-19-ty-usd-188260618165129568.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="content-panel" id="cat_1">
+            <div class="panel-header" style="border-left:4px solid #f59e0b;background:rgba(245,158,11,0.15);">
+                <div class="panel-header-left">
+                    <div class="panel-icon" style="background:rgba(245,158,11,0.15);">
+                        <i class="fa-solid fa-coins" style="color:#f59e0b;font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div class="panel-title" style="color:#f59e0b;">Lãi suất & Tiền tệ</div>
+                        <div class="panel-subtitle">18 cụm tin · 18 bài gốc</div>
+                    </div>
+                </div>
+                <span class="panel-badge" style="background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.35);">
+                    <i class="fa-solid fa-layer-group"></i> 18 tin
+                </span>
+            </div>
+            <div class="cards-grid">
+                
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/dong-yen-nhat-mat-gia-canh-bao-can-thiep-tang-lai-suat-deu-khong-co-tac-dung.htm" target="_blank" class="news-headline-link">Đồng yên Nhật mất giá: Cảnh báo, can thiệp, tăng lãi suất đều không có tác dụng</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">09:00 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/dong-yen-nhat-mat-gia-canh-bao-can-thiep-tang-lai-suat-deu-khong-co-tac-dung.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMi0wFBVV95cUxPWWNlZ1dWRHZ0NGhuTE1ib3lBT01YUWsxMlpGZFB0UzEwZXdfYllEVEV4bTZHV2FqSURPdS02MFpZY2xaejBjMXNBSEtxTVlBdXFnOUk2am5QVDFMQTAzaW42bVlzT1FIREVHTXIzNkVsaTVYcTg0UXZNdWFXbjJQSUJobHhxZGpGd25TLV93eHJaZElBYXJ4VkkwQVEwTlJ4RWgtbmFEZ3kzVHZrY0ZZSGRkd3FvSUd1X3ZNcTFoMFFtMVpOTl9EOGJaTHFrMGpHX2VR?oc=5" target="_blank" class="news-headline-link">Lãi suất neo cao, dòng tiền đổi hướng: Chuyên gia chỉ 4 nguyên tắc &#39;vàng&#39; để giữ tiền và gia tăng tài sản</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:44 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMi0wFBVV95cUxPWWNlZ1dWRHZ0NGhuTE1ib3lBT01YUWsxMlpGZFB0UzEwZXdfYllEVEV4bTZHV2FqSURPdS02MFpZY2xaejBjMXNBSEtxTVlBdXFnOUk2am5QVDFMQTAzaW42bVlzT1FIREVHTXIzNkVsaTVYcTg0UXZNdWFXbjJQSUJobHhxZGpGd25TLV93eHJaZElBYXJ4VkkwQVEwTlJ4RWgtbmFEZ3kzVHZrY0ZZSGRkd3FvSUd1X3ZNcTFoMFFtMVpOTl9EOGJaTHFrMGpHX2VR?oc=5" target="_blank" class="src-chip">nguoiquansat.vn</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/chenh-lech-gia-mua-ban-vang-nhan-cao-hon-so-voi-vang-mieng-sjc.htm" target="_blank" class="news-headline-link">Chênh lệch giá mua, bán vàng nhẫn cao hơn so với vàng miếng SJC</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:14 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/chenh-lech-gia-mua-ban-vang-nhan-cao-hon-so-voi-vang-mieng-sjc.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/lai-suat-vay-mua-nha-tra-gop-o-chau-au.htm" target="_blank" class="news-headline-link">Lãi suất vay mua nhà trả góp ở châu Âu</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:03 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/lai-suat-vay-mua-nha-tra-gop-o-chau-au.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMi3wFBVV95cUxPMmVOS2dBdFpYYTkzV3VwWHJha3VWTDlkNHdVbmp0Z3ZXSWh5NHVjNWNTcHdtV1piRTNOalpjTmg4Z1Q2TnNvbnNZa3dQSEhRbHBxQTY4RzMtNWtrbUJ1anEtaE1lQmo3VGJFa3p5bElNNGRGWTNmQ0E4Vy1RUjlvTVE4WnlmNXduWXZiN3ZwTEJmNDNzcm5LVW5WdVJEZ1R6T2RvSVVYVzlGVHA0SjhfbTlXNDBNcUNZVlEwWlhnM0hlOEdtX2JabDJHQnNMa3gtUlVQd0ljZ1ExN2hSeWFr?oc=5" target="_blank" class="news-headline-link">TS Lê Xuân Nghĩa: Gia hạn thuế cho doanh nghiệp lúc này chẳng khác nào một khoản ‘vay không lãi suất’ từ Nhà nước</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">05:25 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMi3wFBVV95cUxPMmVOS2dBdFpYYTkzV3VwWHJha3VWTDlkNHdVbmp0Z3ZXSWh5NHVjNWNTcHdtV1piRTNOalpjTmg4Z1Q2TnNvbnNZa3dQSEhRbHBxQTY4RzMtNWtrbUJ1anEtaE1lQmo3VGJFa3p5bElNNGRGWTNmQ0E4Vy1RUjlvTVE4WnlmNXduWXZiN3ZwTEJmNDNzcm5LVW5WdVJEZ1R6T2RvSVVYVzlGVHA0SjhfbTlXNDBNcUNZVlEwWlhnM0hlOEdtX2JabDJHQnNMa3gtUlVQd0ljZ1ExN2hSeWFr?oc=5" target="_blank" class="src-chip">nguoiquansat.vn</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMivgFBVV95cUxNVXhnMjkxQ3NLQzBqWTUwOUNWc25wNHRHeE1PejN1elotR3M3NXhNSzhzdmNEVHFnXzEyWGpIa21waXRvVU9ESUlObGhfcVFQVkhqU1NSam1YVEwtM1lRNV82ZUNPSVlnQTQ5VTF6QWo0SHJzVmYxZFBtbFFUZ2syelgwQlRMREZ6aV9fMXQxWUlJT0ZXdExmVlFUNlUxUGYtd2stNjJjeTdOZjFSbFZvWmR1Z2F4MEJ5bHdEd1Zn?oc=5" target="_blank" class="news-headline-link">Fed tiếp tục trì hoãn việc giảm lãi suất sẽ gây áp lực đáng kể lên tỷ giá USD/VND</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">05:06 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMivgFBVV95cUxNVXhnMjkxQ3NLQzBqWTUwOUNWc25wNHRHeE1PejN1elotR3M3NXhNSzhzdmNEVHFnXzEyWGpIa21waXRvVU9ESUlObGhfcVFQVkhqU1NSam1YVEwtM1lRNV82ZUNPSVlnQTQ5VTF6QWo0SHJzVmYxZFBtbFFUZ2syelgwQlRMREZ6aV9fMXQxWUlJT0ZXdExmVlFUNlUxUGYtd2stNjJjeTdOZjFSbFZvWmR1Z2F4MEJ5bHdEd1Zn?oc=5" target="_blank" class="src-chip">VietnamBiz</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/phat-hien-o-lua-dao-trong-can-ho-chung-cu-188260619104231759.chn" target="_blank" class="news-headline-link">Phát hiện “ổ” lừa đảo trong căn hộ chung cư</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">10:43 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/phat-hien-o-lua-dao-trong-can-ho-chung-cu-188260619104231759.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/quy-bac-lon-nhat-the-gioi-lam-gi-trong-ngay-gia-giam-sau-188260619094958203.chn" target="_blank" class="news-headline-link">Quỹ bạc lớn nhất thế giới làm gì trong ngày giá giảm sâu?</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">09:58 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/quy-bac-lon-nhat-the-gioi-lam-gi-trong-ngay-gia-giam-sau-188260619094958203.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/sau-vu-ipo-lich-su-spacex-lai-dang-tinh-phat-hanh-20-ty-usd-trai-phieu.htm" target="_blank" class="news-headline-link">Sau vụ IPO lịch sử, SpaceX lại đang tính phát hành 20 tỷ USD trái phiếu</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">02:10 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/sau-vu-ipo-lich-su-spacex-lai-dang-tinh-phat-hanh-20-ty-usd-trai-phieu.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/viet-nam-nga-thuc-day-cac-tru-cot-hop-tac-chien-luoc-huong-toi-kim-ngach-thuong-mai-15-ty-usd.htm" target="_blank" class="news-headline-link">Việt Nam - Nga thúc đẩy các trụ cột hợp tác chiến lược, hướng tới kim ngạch thương mại 15 tỷ USD</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">01:51 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/viet-nam-nga-thuc-day-cac-tru-cot-hop-tac-chien-luoc-huong-toi-kim-ngach-thuong-mai-15-ty-usd.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMikAFBVV95cUxQSHpjUWF6TTZtYy0yemJkN280UHlCZVZ6X01ZcnpGR1REdEVsWEZjT1lwZVJ5NEtkR3lmSVpvbXVIS0M2Q0t1YXVnNDRWZHBYTmRja2llN2hWT29PYWE0N25zMXM3WWNhcXc2OVhjd2tDVzNJdHlfckhycUg3RV9YNmhPT21ZVk9YVEs1YXJDVjM?oc=5" target="_blank" class="news-headline-link">Giữ mặt bằng lãi suất giữa &#39;vòng xoáy&#39; áp lực</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">01:42 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMikAFBVV95cUxQSHpjUWF6TTZtYy0yemJkN280UHlCZVZ6X01ZcnpGR1REdEVsWEZjT1lwZVJ5NEtkR3lmSVpvbXVIS0M2Q0t1YXVnNDRWZHBYTmRja2llN2hWT29PYWE0N25zMXM3WWNhcXc2OVhjd2tDVzNJdHlfckhycUg3RV9YNmhPT21ZVk9YVEs1YXJDVjM?oc=5" target="_blank" class="src-chip">Doanh nghiệp Cuộc sống</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/boe-giu-nguyen-lai-suat-lan-thu-4-lien-tiep.htm" target="_blank" class="news-headline-link">BOE giữ nguyên lãi suất lần thứ 4 liên tiếp</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">01:20 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/boe-giu-nguyen-lai-suat-lan-thu-4-lien-tiep.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/chung-khoan-my-hoi-phuc-sau-phien-ban-thao-vi-fed-gia-dau-tang-nhe.htm" target="_blank" class="news-headline-link">Chứng khoán Mỹ hồi phục sau phiên bán tháo vì Fed, giá dầu tăng nhẹ</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">01:19 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/chung-khoan-my-hoi-phuc-sau-phien-ban-thao-vi-fed-gia-dau-tang-nhe.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/cao-su-sao-vang-tang-von-len-gan-365-ty-dong-sau-dot-thuong-co-phieu-188260619081649275.chn" target="_blank" class="news-headline-link">Cao su Sao Vàng tăng vốn lên gần 365 tỷ đồng sau đợt thưởng cổ phiếu</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:17 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/cao-su-sao-vang-tang-von-len-gan-365-ty-dong-sau-dot-thuong-co-phieu-188260619081649275.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/quy-lon-nhat-the-gioi-vung-tien-bat-day-hon-7-tan-vang-188260619080808669.chn" target="_blank" class="news-headline-link">Quỹ lớn nhất thế giới "vung tiền" bắt đáy hơn 7 tấn vàng</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:16 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/quy-lon-nhat-the-gioi-vung-tien-bat-day-hon-7-tan-vang-188260619080808669.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="content-panel" id="cat_2">
+            <div class="panel-header" style="border-left:4px solid #ef4444;background:rgba(239,68,68,0.15);">
+                <div class="panel-header-left">
+                    <div class="panel-icon" style="background:rgba(239,68,68,0.15);">
+                        <i class="fa-solid fa-globe" style="color:#ef4444;font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div class="panel-title" style="color:#ef4444;">Địa chính trị & Vĩ mô Toàn cầu</div>
+                        <div class="panel-subtitle">14 cụm tin · 14 bài gốc</div>
+                    </div>
+                </div>
+                <span class="panel-badge" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.35);">
+                    <i class="fa-solid fa-layer-group"></i> 14 tin
+                </span>
+            </div>
+            <div class="cards-grid">
+                
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/giai-phong-tai-san-iran-bai-toan-kho-doi-voi-tong-thong-trump.htm" target="_blank" class="news-headline-link">Giải phóng tài sản Iran, bài toán khó đối với Tổng thống Trump?</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">09:00 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/giai-phong-tai-san-iran-bai-toan-kho-doi-voi-tong-thong-trump.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/viet-nam-gop-phan-thuc-day-hop-tac-asean-nga-di-vao-thuc-chat.htm" target="_blank" class="news-headline-link">Việt Nam góp phần thúc đẩy hợp tác ASEAN - Nga đi vào thực chất</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">09:00 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/viet-nam-gop-phan-thuc-day-hop-tac-asean-nga-di-vao-thuc-chat.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/chuyen-gi-day-chu-tich-cung-toan-bo-hoi-dong-quan-tri-cong-ty-dong-loat-xin-tu-chuc-ngay-truoc-dai-hoi-188260619151142387.chn" target="_blank" class="news-headline-link">Chuyện gì đây: Chủ tịch cùng toàn bộ hội đồng quản trị công ty đồng loạt xin từ chức ngay trước đại hội</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">15:11 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/chuyen-gi-day-chu-tich-cung-toan-bo-hoi-dong-quan-tri-cong-ty-dong-loat-xin-tu-chuc-ngay-truoc-dai-hoi-188260619151142387.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMilAFBVV95cUxQWHdVV2ZRd2h0Qjgzb3RVdHRHeXJhTXZyOTVLczdnZTNrUTJyd0NaR1RuV1NrSGRWNkNSMmNXWWY4Nm0taHhhT0ttZEk4V1o1Vk9UZ05SLXhVX1ZVYzVGd2M2c2FSNkxEUjZTX0NZWU0xUERNZ2VqWHNyQjJ1RGRYREJTWjFkQ3dWVm9temFZTHZkcXll?oc=5" target="_blank" class="news-headline-link">Thỏa thuận Mỹ-Iran: Khi xung đột không thể tạo ra hòa bình</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:08 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMilAFBVV95cUxQWHdVV2ZRd2h0Qjgzb3RVdHRHeXJhTXZyOTVLczdnZTNrUTJyd0NaR1RuV1NrSGRWNkNSMmNXWWY4Nm0taHhhT0ttZEk4V1o1Vk9UZ05SLXhVX1ZVYzVGd2M2c2FSNkxEUjZTX0NZWU0xUERNZ2VqWHNyQjJ1RGRYREJTWjFkQ3dWVm9temFZTHZkcXll?oc=5" target="_blank" class="src-chip">Báo Thế giới và Việt Nam</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/chu-tich-tap-doan-brg-tiep-tuc-duoc-bau-vao-ban-chap-hanh-trung-uong-hoi-lien-hiep-phu-nu-viet-nam-khoa-xiv.htm" target="_blank" class="news-headline-link">Chủ tịch Tập đoàn BRG, tiếp tục được bầu vào Ban Chấp hành Trung ương Hội Liên hiệp Phụ nữ Việt Nam khóa XIV</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">07:00 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/chu-tich-tap-doan-brg-tiep-tuc-duoc-bau-vao-ban-chap-hanh-trung-uong-hoi-lien-hiep-phu-nu-viet-nam-khoa-xiv.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/fe-credit-dau-tu-hon-23-ty-dong-khuyen-khich-khach-hang-xay-dung-thoi-quen-tai-chinh-tot.htm" target="_blank" class="news-headline-link">FE CREDIT đầu tư hơn 2,3 tỷ đồng, khuyến khích khách hàng xây dựng thói quen tài chính tốt</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">05:05 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/fe-credit-dau-tu-hon-23-ty-dong-khuyen-khich-khach-hang-xay-dung-thoi-quen-tai-chinh-tot.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/trung-quoc-siet-cac-nen-tang-dau-tu-xuyen-bien-gioi-xay-dung-he-sinh-thai-tai-chinh-nhan-dan-te.htm" target="_blank" class="news-headline-link">Trung Quốc: Siết các nền tảng đầu tư xuyên biên giới, xây dựng hệ sinh thái tài chính nhân dân tệ</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">03:29 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/trung-quoc-siet-cac-nen-tang-dau-tu-xuyen-bien-gioi-xay-dung-he-sinh-thai-tai-chinh-nhan-dan-te.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMinwFBVV95cUxPM2dPWEJxZUhadXFJTUV1bkFNa050LV9pWjd2dU9WUHZ6ajFncDRQT3dSMFM1VWI3eHYyVERGV24xX255aU8yZ1Q3YTd5Q3hqXzhfM3RHMmFqY0tWemVBYjlhRzhnMVBWWG5BUlJOTkpYbTN1MkIxR3lNY1pOWkRjd2hNVW9NbnB6dS1XdFRITGxteThaV1BabXhQV1Z0aU0?oc=5" target="_blank" class="news-headline-link">Thỏa thuận hòa bình Mỹ - Iran: Cánh cửa mới cho hòa bình Trung Đông?</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">02:56 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMinwFBVV95cUxPM2dPWEJxZUhadXFJTUV1bkFNa050LV9pWjd2dU9WUHZ6ajFncDRQT3dSMFM1VWI3eHYyVERGV24xX255aU8yZ1Q3YTd5Q3hqXzhfM3RHMmFqY0tWemVBYjlhRzhnMVBWWG5BUlJOTkpYbTN1MkIxR3lNY1pOWkRjd2hNVW9NbnB6dS1XdFRITGxteThaV1BabXhQV1Z0aU0?oc=5" target="_blank" class="src-chip">Báo Thanh Hóa</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMihwFBVV95cUxQRjEwT3k5TkVkMnMxemZScS1paHlucy12VjRfYVBHYTVHYUtNTmxPVThIb2hvcWpqd1FtYkVwY0ZKamcxWnlYREhjaTFfYU5uNHBPdy05cTY2S3NvUDNIYllIaUt0dXpVQldmWVZqNE5udlo4bGEzaWJRbVJWSjMxY1UzMHF3M1U?oc=5" target="_blank" class="news-headline-link">Những tổn thất các bên sau chiến sự Mỹ - Iran</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">02:38 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMihwFBVV95cUxQRjEwT3k5TkVkMnMxemZScS1paHlucy12VjRfYVBHYTVHYUtNTmxPVThIb2hvcWpqd1FtYkVwY0ZKamcxWnlYREhjaTFfYU5uNHBPdy05cTY2S3NvUDNIYllIaUt0dXpVQldmWVZqNE5udlo4bGEzaWJRbVJWSjMxY1UzMHF3M1U?oc=5" target="_blank" class="src-chip">Báo Lào Cai điện tử</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/thu-tuong-le-minh-hung-ket-thuc-chuyen-cong-tac-tai-lien-bang-nga.htm" target="_blank" class="news-headline-link">Thủ tướng Lê Minh Hưng kết thúc chuyến công tác tại Liên bang Nga</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">01:40 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/thu-tuong-le-minh-hung-ket-thuc-chuyen-cong-tac-tai-lien-bang-nga.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/tau-thuyen-bat-dau-luu-thong-tro-lai-qua-eo-bien-hormuz.htm" target="_blank" class="news-headline-link">Tàu thuyền bắt đầu lưu thông trở lại qua eo biển Hormuz</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">01:38 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/tau-thuyen-bat-dau-luu-thong-tro-lai-qua-eo-bien-hormuz.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/bat-tay-doi-tac-nga-kinh-doanh-o-noi-am-50-do-va-giua-bien-khoi-mot-doanh-nghiep-viet-thu-ve-hon-40000-ty-loi-nhuan-chi-trong-5-nam-188260619075939525.chn" target="_blank" class="news-headline-link">Bắt tay đối tác Nga kinh doanh ở nơi âm 50 độ và giữa biển khơi, một doanh nghiệp Việt thu về hơn 40.000 tỷ lợi nhuận chỉ trong 5 năm</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">07:59 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/bat-tay-doi-tac-nga-kinh-doanh-o-noi-am-50-do-va-giua-bien-khoi-mot-doanh-nghiep-viet-thu-ve-hon-40000-ty-loi-nhuan-chi-trong-5-nam-188260619075939525.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/viet-nam-tao-dieu-kien-thuan-loi-de-quy-dau-tu-truc-tiep-nga-mo-rong-hop-tac.htm" target="_blank" class="news-headline-link">Việt Nam tạo điều kiện thuận lợi để Quỹ Đầu tư trực tiếp Nga mở rộng hợp tác</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">00:51 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/viet-nam-tao-dieu-kien-thuan-loi-de-quy-dau-tu-truc-tiep-nga-mo-rong-hop-tac.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMi1wFBVV95cUxPcEZ2a05hRklVNkVQQlJUaTRDYXlZV1pyVWtBSmh5V2gyY24xWUJMdGdJU0xqZF9aaWw5UkZKaVdZV21oRGNTYU1xMVN6WmFUT0l3a01NdF8yckswTnF6R1ZwR05YR3lTNmZ2bGM0Y2s2MTVlZHBUX0U2cnFXblZiR09yOUowOGp6bDdHS2pDdmlGUDhjV0EyZnFoVkpxalhvQ21nTElETF9RZXJPTnppLXZZRHcxVUdzOTF1bmJDbHZQU1JhN3pkUFN0RlVOWHNhOGpzYXZuZw?oc=5" target="_blank" class="news-headline-link">Hiện trạng và tương lai của ngành công nghiệp UAV quân sự Nga dưới tác động từ các lệnh trừng phạt (Phần cuối)</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">19:28 18/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMi1wFBVV95cUxPcEZ2a05hRklVNkVQQlJUaTRDYXlZV1pyVWtBSmh5V2gyY24xWUJMdGdJU0xqZF9aaWw5UkZKaVdZV21oRGNTYU1xMVN6WmFUT0l3a01NdF8yckswTnF6R1ZwR05YR3lTNmZ2bGM0Y2s2MTVlZHBUX0U2cnFXblZiR09yOUowOGp6bDdHS2pDdmlGUDhjV0EyZnFoVkpxalhvQ21nTElETF9RZXJPTnppLXZZRHcxVUdzOTF1bmJDbHZQU1JhN3pkUFN0RlVOWHNhOGpzYXZuZw?oc=5" target="_blank" class="src-chip">Nghiên Cứu Chiến Lược</a>
+                    </span>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="content-panel" id="cat_3">
+            <div class="panel-header" style="border-left:4px solid #8b5cf6;background:rgba(139,92,246,0.15);">
+                <div class="panel-header-left">
+                    <div class="panel-icon" style="background:rgba(139,92,246,0.15);">
+                        <i class="fa-solid fa-earth-americas" style="color:#8b5cf6;font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div class="panel-title" style="color:#8b5cf6;">Kinh tế Thế giới</div>
+                        <div class="panel-subtitle">10 cụm tin · 10 bài gốc</div>
+                    </div>
+                </div>
+                <span class="panel-badge" style="background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.35);">
+                    <i class="fa-solid fa-layer-group"></i> 10 tin
+                </span>
+            </div>
+            <div class="cards-grid">
+                
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/indonesia-doi-mat-rui-ro-lon-neu-msci-ha-xep-hang-thi-truong.htm" target="_blank" class="news-headline-link">Indonesia đối mặt rủi ro lớn nếu MSCI hạ xếp hạng thị trường</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">09:00 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/indonesia-doi-mat-rui-ro-lon-neu-msci-ha-xep-hang-thi-truong.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/bac-ninh-bo-sung-2-du-an-nha-o-cho-phep-nguoi-nuoc-ngoai-duoc-so-huu.htm" target="_blank" class="news-headline-link">Bắc Ninh bổ sung 2 dự án nhà ở cho phép người nước ngoài được sở hữu</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:09 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/bac-ninh-bo-sung-2-du-an-nha-o-cho-phep-nguoi-nuoc-ngoai-duoc-so-huu.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/trung-quoc-bo-sung-cong-suat-dien-mat-troi-nhieu-hon-toan-bo-phan-con-lai-cua-the-gioi.htm" target="_blank" class="news-headline-link">Trung Quốc bổ sung công suất điện mặt trời nhiều hơn toàn bộ phần còn lại của thế giới</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:04 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/trung-quoc-bo-sung-cong-suat-dien-mat-troi-nhieu-hon-toan-bo-phan-con-lai-cua-the-gioi.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/2-doanh-nghiep-cua-thaco-bi-bo-thuong-mai-my-ap-thue-chong-ban-pha-gia-18684-188260619135659186.chn" target="_blank" class="news-headline-link">2 doanh nghiệp của THACO bị Bộ Thương mại Mỹ áp thuế chống bán phá giá 186,84%</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">13:57 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/2-doanh-nghiep-cua-thaco-bi-bo-thuong-mai-my-ap-thue-chong-ban-pha-gia-18684-188260619135659186.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/ho-tieu-viet-nam-don-co-hoi-lon-tu-thi-truong-trung-dong-nam-a.htm" target="_blank" class="news-headline-link">Hồ tiêu Việt Nam đón cơ hội lớn từ thị trường Trung Đông, Nam Á</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">03:30 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/ho-tieu-viet-nam-don-co-hoi-lon-tu-thi-truong-trung-dong-nam-a.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/da-nang-du-lich-chua-lanh-va-trai-nghiem-van-hoa-nguyen-ban-hap-dan-du-khach-nhat-ban.htm" target="_blank" class="news-headline-link">Đà Nẵng: Du lịch chữa lành và trải nghiệm văn hóa nguyên bản hấp dẫn du khách Nhật Bản</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">03:29 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/da-nang-du-lich-chua-lanh-va-trai-nghiem-van-hoa-nguyen-ban-hap-dan-du-khach-nhat-ban.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/ra-lenh-bat-tam-giam-giam-doc-nguyen-thi-to-loan-va-truong-phong-trang-tuyet-ngoc-188260619082351302.chn" target="_blank" class="news-headline-link">Giám đốc công ty bị bắt vì bán hơn 10.000 tấn chân gà nhập lậu ra thị trường</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">10:05 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/ra-lenh-bat-tam-giam-giam-doc-nguyen-thi-to-loan-va-truong-phong-trang-tuyet-ngoc-188260619082351302.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/viet-nam-duc-thuc-day-hop-tac-chien-luoc-trong-giai-doan-moi.htm" target="_blank" class="news-headline-link">Việt Nam - Đức thúc đẩy hợp tác chiến lược trong giai đoạn mới</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">01:45 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/viet-nam-duc-thuc-day-hop-tac-chien-luoc-trong-giai-doan-moi.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMipgFBVV95cUxQdnBqeWI3STh1UkRiVW1Ua1JDd1h3NlQzUkRXWHhIQjBacEVSaE9pSGVSUmZPWkhMOEtkenZ6M3E4MC1VbzVOeURJcFlGSHJpc1AtekRpd0o3S2V3eWZhWDIyZXZkZnpVbGN2d3FuMU1lTjJHaVZPYU90WGJoTS1OeEgzQVlER1FyREN2ZmdMZ3BiRXZrbWh6WWppMTFoV0xJZHNCNnZR?oc=5" target="_blank" class="news-headline-link">Chứng khoán Mỹ tăng mạnh, Nasdaq dẫn sóng nhờ cổ phiếu bán dẫn</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">00:31 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMipgFBVV95cUxQdnBqeWI3STh1UkRiVW1Ua1JDd1h3NlQzUkRXWHhIQjBacEVSaE9pSGVSUmZPWkhMOEtkenZ6M3E4MC1VbzVOeURJcFlGSHJpc1AtekRpd0o3S2V3eWZhWDIyZXZkZnpVbGN2d3FuMU1lTjJHaVZPYU90WGJoTS1OeEgzQVlER1FyREN2ZmdMZ3BiRXZrbWh6WWppMTFoV0xJZHNCNnZR?oc=5" target="_blank" class="src-chip">Tạp chí Doanh nghiệp và Hội nhập</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/container-chua-172000-qua-trung-an-lien-viet-nam-lan-dau-xuat-khau-sang-nhat-188260618212046082.chn" target="_blank" class="news-headline-link">Container chứa 172.000 quả trứng ăn liền Việt Nam lần đầu xuất khẩu sang Nhật</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">21:22 18/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/container-chua-172000-qua-trung-an-lien-viet-nam-lan-dau-xuat-khau-sang-nhat-188260618212046082.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="content-panel" id="cat_4">
+            <div class="panel-header" style="border-left:4px solid #10b981;background:rgba(16,185,129,0.15);">
+                <div class="panel-header-left">
+                    <div class="panel-icon" style="background:rgba(16,185,129,0.15);">
+                        <i class="fa-solid fa-landmark" style="color:#10b981;font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div class="panel-title" style="color:#10b981;">Vĩ mô Việt Nam & Chính sách</div>
+                        <div class="panel-subtitle">10 cụm tin · 10 bài gốc</div>
+                    </div>
+                </div>
+                <span class="panel-badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.35);">
+                    <i class="fa-solid fa-layer-group"></i> 10 tin
+                </span>
+            </div>
+            <div class="cards-grid">
+                
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/hdnd-tp-ho-chi-minh-xem-xet-cac-du-an-ha-tang-chien-luoc-va-chinh-sach-an-sinh-moi.htm" target="_blank" class="news-headline-link">HĐND TP. Hồ Chí Minh xem xét các dự án hạ tầng chiến lược và chính sách an sinh mới</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">09:13 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/hdnd-tp-ho-chi-minh-xem-xet-cac-du-an-ha-tang-chien-luoc-va-chinh-sach-an-sinh-moi.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/moi-du-an-cong-trinh-xay-dung-se-phai-gan-voi-mot-ma-dinh-danh-duy-nhat.htm" target="_blank" class="news-headline-link">Mỗi dự án, công trình xây dựng sẽ phải gắn với một mã định danh duy nhất</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:20 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/moi-du-an-cong-trinh-xay-dung-se-phai-gan-voi-mot-ma-dinh-danh-duy-nhat.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/de-xuat-gian-thoi-han-nop-thue-toi-da-5-thang-trong-nam-2026.htm" target="_blank" class="news-headline-link">Đề xuất giãn thời hạn nộp thuế tối đa 5 tháng trong năm 2026</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:20 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/de-xuat-gian-thoi-han-nop-thue-toi-da-5-thang-trong-nam-2026.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/tang-qua-cho-nguoi-co-cong-voi-cach-mang-nhan-dip-ky-niem-ngay-thuong-binh-liet-si.htm" target="_blank" class="news-headline-link">Tặng quà cho người có công với cách mạng nhân dịp kỷ niệm Ngày Thương binh - Liệt sĩ</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:02 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/tang-qua-cho-nguoi-co-cong-voi-cach-mang-nhan-dip-ky-niem-ngay-thuong-binh-liet-si.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/chu-tich-hoi-doanh-nhan-tre-viet-nam-fdi-phai-tro-thanh-luc-keo-ve-cong-nghe-quan-tri-tieu-chuan-thi-truong-va-nang-luc-canh-tranh-18826061914514309.chn" target="_blank" class="news-headline-link">Chủ tịch Hội Doanh nhân trẻ Việt Nam: FDI phải trở thành lực kéo về công nghệ, quản trị, tiêu chuẩn, thị trường và năng lực cạnh tranh</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">14:51 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/chu-tich-hoi-doanh-nhan-tre-viet-nam-fdi-phai-tro-thanh-luc-keo-ve-cong-nghe-quan-tri-tieu-chuan-thi-truong-va-nang-luc-canh-tranh-18826061914514309.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/doi-uu-dai-lay-tri-thuc-cach-tiep-can-moi-cho-cong-nghiep-phu-tro-viet-nam.htm" target="_blank" class="news-headline-link">Đổi ưu đãi lấy tri thức: Cách tiếp cận mới cho công nghiệp phụ trợ Việt Nam</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">03:30 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/doi-uu-dai-lay-tri-thuc-cach-tiep-can-moi-cho-cong-nghiep-phu-tro-viet-nam.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/dien-dan-vpsf-2026-tai-nghe-an-doanh-nghiep-thoi-keu-kho-chuyen-sang-dong-kien-tao-chinh-sach.htm" target="_blank" class="news-headline-link">Diễn đàn VPSF 2026 tại Nghệ An: Doanh nghiệp thôi “kêu khó”, chuyển sang “đồng kiến tạo chính sách”</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">02:49 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/dien-dan-vpsf-2026-tai-nghe-an-doanh-nghiep-thoi-keu-kho-chuyen-sang-dong-kien-tao-chinh-sach.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/phu-quoc-va-cuoc-dich-chuyen-cua-tam-diem-thinh-vuong-moi.htm" target="_blank" class="news-headline-link">Phú Quốc và cuộc dịch chuyển của “tâm điểm thịnh vượng” mới</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">02:00 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/phu-quoc-va-cuoc-dich-chuyen-cua-tam-diem-thinh-vuong-moi.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/da-nang-cong-bo-do-an-quy-hoach-phan-khu-cong-nghiep-dien-tien-gan-250ha.htm" target="_blank" class="news-headline-link">Đà Nẵng công bố đồ án quy hoạch phân khu công nghiệp Điện Tiến gần 250ha</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">01:22 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/da-nang-cong-bo-do-an-quy-hoach-phan-khu-cong-nghiep-dien-tien-gan-250ha.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/buoc-tien-quan-trong-trong-xay-dung-moi-truong-thu-nghiem-cong-nghe-moi-tai-da-nang.htm" target="_blank" class="news-headline-link">Bước tiến quan trọng trong xây dựng môi trường thử nghiệm công nghệ mới tại Đà Nẵng</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">01:16 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/buoc-tien-quan-trong-trong-xay-dung-moi-truong-thu-nghiem-cong-nghe-moi-tai-da-nang.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="content-panel" id="cat_5">
+            <div class="panel-header" style="border-left:4px solid #3b82f6;background:rgba(59,130,246,0.15);">
+                <div class="panel-header-left">
+                    <div class="panel-icon" style="background:rgba(59,130,246,0.15);">
+                        <i class="fa-solid fa-chart-line" style="color:#3b82f6;font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div class="panel-title" style="color:#3b82f6;">Chứng khoán & Doanh nghiệp nổi bật</div>
+                        <div class="panel-subtitle">15 cụm tin · 18 bài gốc</div>
+                    </div>
+                </div>
+                <span class="panel-badge" style="background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.35);">
+                    <i class="fa-solid fa-layer-group"></i> 15 tin
+                </span>
+            </div>
+            <div class="cards-grid">
+                
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/suc-ep-tai-co-cau-day-thanh-khoan-tang-khoi-ngoai-ban-rong-hon-1600-ty.htm" target="_blank" class="news-headline-link">Sức ép tái cơ cấu đẩy thanh khoản tăng, khối ngoại bán ròng hơn 1.600 tỷ</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">15:53 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/suc-ep-tai-co-cau-day-thanh-khoan-tang-khoi-ngoai-ban-rong-hon-1600-ty.htm" target="_blank" class="src-chip">Kinh tế số</a><a href="https://cafef.vn/khoi-ngoai-ban-rong-hon-1600-ty-dong-phien-co-cau-etf-dau-la-tam-diem-xa-hang-188260619155348815.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/dnse-chinh-thuc-khoi-dong-cuoc-thi-marathon-chung-khoan-mua-2.htm" target="_blank" class="news-headline-link">DNSE chính thức khởi động cuộc thi "Marathon Chứng khoán mùa 2"</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:33 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/dnse-chinh-thuc-khoi-dong-cuoc-thi-marathon-chung-khoan-mua-2.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                    <span class="ticker-badge">MSH</span><span class="ticker-badge">HSG</span><span class="ticker-badge">PVS</span><span class="ticker-badge">NKG</span><span class="ticker-badge">VTP</span><span class="ticker-badge">PLX</span><span class="ticker-badge">GEG</span><span class="ticker-badge">DCM</span><span class="ticker-badge">QNS</span><span class="ticker-badge">GAS</span> 
+                    <a href="https://news.google.com/rss/articles/CBMi3AFBVV95cUxQbi1lZml2UXV5ckxVZ2w5anpObmZCR2VKUHp2bGFZZzN2TWVMbXFLZzZrNXhIdkdLc2VqMVlKRXp5Z0tQTGtCZHg1dUhqVWZEdXJsQWlnWW9SZDZJY1BiQXczN3BJRGdUcnZLdko2djBEWDcxOFdGYXpET245Vmd0N3hTR2wtV2JsSWU3OFhWTjFmTmlBUjE2SGZNX1NCYl9Fcm5zVU1xZ3hHVTVJMU1OWE13R0hZR1cwZEkwMlZ3LTZLbzc1aW0yb0RZSXU4YU55ZWs1YkRCZ2lZUVFE?oc=5" target="_blank" class="news-headline-link">CTCK ước tính KQKD quý 2 của 57 doanh nghiệp "hot": Lợi nhuận một tên tuổi đầu ngành có thể tăng trưởng 900%</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">11:31 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMi3AFBVV95cUxQbi1lZml2UXV5ckxVZ2w5anpObmZCR2VKUHp2bGFZZzN2TWVMbXFLZzZrNXhIdkdLc2VqMVlKRXp5Z0tQTGtCZHg1dUhqVWZEdXJsQWlnWW9SZDZJY1BiQXczN3BJRGdUcnZLdko2djBEWDcxOFdGYXpET245Vmd0N3hTR2wtV2JsSWU3OFhWTjFmTmlBUjE2SGZNX1NCYl9Fcm5zVU1xZ3hHVTVJMU1OWE13R0hZR1cwZEkwMlZ3LTZLbzc1aW0yb0RZSXU4YU55ZWs1YkRCZ2lZUVFE?oc=5" target="_blank" class="src-chip">CafeF</a><a href="https://cafef.vn/ctck-uoc-tinh-kqkd-quy-2-cua-57-doanh-nghiep-hot-loi-nhuan-mot-ten-tuoi-dau-nganh-co-the-tang-truong-900-188260619113125965.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/khoi-to-them-11-vu-an-gan-200-bi-can-lien-quan-lua-ban-ky-nghi-duong-188260619102450972.chn" target="_blank" class="news-headline-link">Khởi tố thêm 11 vụ án, gần 200 bị can liên quan lừa bán &#39;kỳ nghỉ dưỡng&#39;</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">10:44 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/khoi-to-them-11-vu-an-gan-200-bi-can-lien-quan-lua-ban-ky-nghi-duong-188260619102450972.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/tam-ly-fomo-day-dinh-gia-co-phieu-spacex-vuot-tat-ca-ma-trong-sp-500.htm" target="_blank" class="news-headline-link">Tâm lý FOMO đẩy định giá cổ phiếu SpaceX vượt tất cả mã trong SP 500</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">03:23 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/tam-ly-fomo-day-dinh-gia-co-phieu-spacex-vuot-tat-ca-ma-trong-sp-500.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/suzlon-viet-nam-co-vi-the-de-tro-thanh-trung-tam-nang-luong-tai-tao-cua-dong-nam-a.htm" target="_blank" class="news-headline-link">Suzlon: Việt Nam có vị thế để trở thành trung tâm năng lượng tái tạo của Đông Nam Á</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">03:20 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/suzlon-viet-nam-co-vi-the-de-tro-thanh-trung-tam-nang-luong-tai-tao-cua-dong-nam-a.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/khoi-to-vu-an-bat-nu-giam-doc-buon-lau-hang-nghin-tan-chan-ga-dong-lanh.htm" target="_blank" class="news-headline-link">Khởi tố vụ án, bắt nữ giám đốc buôn lậu hàng nghìn tấn chân gà đông lạnh</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">02:03 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/khoi-to-vu-an-bat-nu-giam-doc-buon-lau-hang-nghin-tan-chan-ga-dong-lanh.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/hang-my-goi-hai-con-tom-len-ke-hoach-doanh-thu-cao-nhat-lich-su-dau-tu-900-ty-dong-xay-nha-may-moi-188260619080329928.chn" target="_blank" class="news-headline-link">Hãng mỳ gói “hai con tôm” lên kế hoạch doanh thu cao nhất lịch sử, đầu tư 900 tỷ đồng xây nhà máy mới</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:03 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/hang-my-goi-hai-con-tom-len-ke-hoach-doanh-thu-cao-nhat-lich-su-dau-tu-900-ty-dong-xay-nha-may-moi-188260619080329928.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/lo-dien-khoi-tai-san-tri-gia-gan-12000-ty-do-con-trai-va-con-gai-ong-nguyen-duc-thuy-nam-giu-tai-mot-cong-ty-sap-len-san-188260619075734451.chn" target="_blank" class="news-headline-link">Lộ diện khối tài sản trị giá gần 12.000 tỷ do con trai và con gái ông Nguyễn Đức Thụy nắm giữ tại một công ty sắp lên sàn</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">07:57 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/lo-dien-khoi-tai-san-tri-gia-gan-12000-ty-do-con-trai-va-con-gai-ong-nguyen-duc-thuy-nam-giu-tai-mot-cong-ty-sap-len-san-188260619075734451.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/co-phieu-co-the-tang-gia-toi-10-nho-chung-chi-luu-ky-dr-188260619000758794.chn" target="_blank" class="news-headline-link">“Cổ phiếu có thể tăng giá tới 10% nhờ chứng chỉ lưu ký DR”</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">00:07 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/co-phieu-co-the-tang-gia-toi-10-nho-chung-chi-luu-ky-dr-188260619000758794.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/vua-bao-lo-ky-luc-chu-tich-mot-doanh-nghiep-xin-tu-nhiem-188260618222219612.chn" target="_blank" class="news-headline-link">Vừa báo lỗ kỷ lục, Chủ tịch một doanh nghiệp xin từ nhiệm</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">00:04 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/vua-bao-lo-ky-luc-chu-tich-mot-doanh-nghiep-xin-tu-nhiem-188260618222219612.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/du-bao-vn-index-cuoi-nam-len-1955-diem-vietcap-chi-ten-9-co-phieu-don-dau-song-moi-18826061822204657.chn" target="_blank" class="news-headline-link">Dự báo VN-Index cuối năm lên 1.955 điểm, Vietcap chỉ tên 9 cổ phiếu đón đầu sóng mới</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">00:04 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/du-bao-vn-index-cuoi-nam-len-1955-diem-vietcap-chi-ten-9-co-phieu-don-dau-song-moi-18826061822204657.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://news.google.com/rss/articles/CBMizwFBVV95cUxQMVNxZlBKcTVGTnJtUlR0SnVUdXZpOG5vb0s0ODkyMEpRd1kzd1hsVXcyVGVibUtJc0o5TVhzeUtmbHUwbjFYMlJHR19QQmJlTS1WelQtU1JPT2VIeXRnT0JVTE0tTGJLWWVFLUNmd2QwSFpyeUtaNlZkMEFQX0dTWlVrbWRCemJVU2J5NVdiYThlM2h1Rkd0MmpEam1PWTJkV0hDOHkzODdTTDFaWjZyN1dST1NpZzl0V29fRG1UbWw4bnhxTzNNZV90T2ZLS0U?oc=5" target="_blank" class="news-headline-link">Một doanh nghiệp trên sàn chứng khoán có tỷ suất cổ tức hơn 15%, gấp đôi gửi tiết kiệm ngân hàng</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">00:03 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://news.google.com/rss/articles/CBMizwFBVV95cUxQMVNxZlBKcTVGTnJtUlR0SnVUdXZpOG5vb0s0ODkyMEpRd1kzd1hsVXcyVGVibUtJc0o5TVhzeUtmbHUwbjFYMlJHR19QQmJlTS1WelQtU1JPT2VIeXRnT0JVTE0tTGJLWWVFLUNmd2QwSFpyeUtaNlZkMEFQX0dTWlVrbWRCemJVU2J5NVdiYThlM2h1Rkd0MmpEam1PWTJkV0hDOHkzODdTTDFaWjZyN1dST1NpZzl0V29fRG1UbWw4bnhxTzNNZV90T2ZLS0U?oc=5" target="_blank" class="src-chip">CafeF</a><a href="https://cafef.vn/mot-doanh-nghiep-tren-san-chung-khoan-co-ty-suat-co-tuc-hon-15-gap-doi-gui-tiet-kiem-ngan-hang-188260618222324296.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/dai-ha-gia-4-lan-gan-14-ty-du-thuyen-cua-ba-truong-my-lan-van-khong-co-nguoi-mua-188260618212332118.chn" target="_blank" class="news-headline-link">Đại hạ giá 4 lần gần 14 tỷ, du thuyền của bà Trương Mỹ Lan vẫn không có người mua</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">21:25 18/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/dai-ha-gia-4-lan-gan-14-ty-du-thuyen-cua-ba-truong-my-lan-van-khong-co-nguoi-mua-188260618212332118.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/ong-lam-quoc-trung-ban-sach-co-phieu-188260618174937197.chn" target="_blank" class="news-headline-link">Ông Lâm Quốc Trung bán sạch cổ phiếu</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">17:49 18/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/ong-lam-quoc-trung-ban-sach-co-phieu-188260618174937197.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="content-panel" id="cat_6">
+            <div class="panel-header" style="border-left:4px solid #64748b;background:rgba(100,116,139,0.10);">
+                <div class="panel-header-left">
+                    <div class="panel-icon" style="background:rgba(100,116,139,0.15);">
+                        <i class="fa-solid fa-newspaper" style="color:#64748b;font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div class="panel-title" style="color:#64748b;">Thời sự & Tin tức khác</div>
+                        <div class="panel-subtitle">34 cụm tin · 36 bài gốc</div>
+                    </div>
+                </div>
+                <span class="panel-badge" style="background:rgba(100,116,139,0.15);color:#94a3b8;border:1px solid rgba(100,116,139,0.30);">
+                    <i class="fa-solid fa-layer-group"></i> 34 tin
+                </span>
+            </div>
+            <div class="cards-grid">
+                
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/bat-dong-san-van-la-kenh-duoc-dong-von-lua-chon.htm" target="_blank" class="news-headline-link">Bất động sản vẫn là kênh được dòng vốn lựa chọn</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">09:09 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/bat-dong-san-van-la-kenh-duoc-dong-von-lua-chon.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/mat-90-tai-san-vi-cum-gia-cam-nguoi-dan-ong-mien-tay-xay-lai-doanh-nghiep-tieu-thu-1-trieu-qua-trung-moi-ngay-188260619160850955.chn" target="_blank" class="news-headline-link">Mất 90% tài sản vì cúm gia cầm, người đàn ông miền Tây xây lại doanh nghiệp tiêu thụ 1 triệu quả trứng mỗi ngày</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">16:08 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/mat-90-tai-san-vi-cum-gia-cam-nguoi-dan-ong-mien-tay-xay-lai-doanh-nghiep-tieu-thu-1-trieu-qua-trung-moi-ngay-188260619160850955.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/cong-ty-cua-ty-phu-pham-nhat-vuong-bat-tay-dien-luc-ha-noi-trien-khai-10000-tu-doi-pin-188260619153005041.chn" target="_blank" class="news-headline-link">Công ty của tỷ phú Phạm Nhật Vượng bắt tay Điện lực Hà Nội triển khai 10.000 tủ đổi pin</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">15:31 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/cong-ty-cua-ty-phu-pham-nhat-vuong-bat-tay-dien-luc-ha-noi-trien-khai-10000-tu-doi-pin-188260619153005041.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/quang-ba-hinh-anh-viet-nam-qua-bao-chi-trong-thoi-dai-ai.htm" target="_blank" class="news-headline-link">Quảng bá hình ảnh Việt Nam qua báo chí trong thời đại AI</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:30 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/quang-ba-hinh-anh-viet-nam-qua-bao-chi-trong-thoi-dai-ai.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/cong-nghe-giup-thay-doi-trai-nghiem-y-te-cua-nguoi-dan.htm" target="_blank" class="news-headline-link">Công nghệ giúp thay đổi trải nghiệm y tế của người dân</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:16 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/cong-nghe-giup-thay-doi-trai-nghiem-y-te-cua-nguoi-dan.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/gioi-tre-dang-roi-xa-xu-huong-mua-sam-boc-dong.htm" target="_blank" class="news-headline-link">Giới trẻ đang rời xa xu hướng “mua sắm bốc đồng”</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:16 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/gioi-tre-dang-roi-xa-xu-huong-mua-sam-boc-dong.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/ha-noi-hon-20000-nguoi-co-nguy-co-gian-doan-nhan-luong-huu-thang-7.htm" target="_blank" class="news-headline-link">Hà Nội: Hơn 20.000 người có nguy cơ gián đoạn nhận lương hưu tháng 7</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">08:02 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/ha-noi-hon-20000-nguoi-co-nguy-co-gian-doan-nhan-luong-huu-thang-7.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/dai-gia-co-quan-he-gan-gui-voi-xuan-son-muon-san-xuat-xe-tai-dien-cong-suat-30000-xe-nam-188260619145339895.chn" target="_blank" class="news-headline-link">Đại gia có quan hệ gần gũi với Xuân Son muốn sản xuất xe tải điện, công suất 30.000 xe/năm</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">14:53 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/dai-gia-co-quan-he-gan-gui-voi-xuan-son-muon-san-xuat-xe-tai-dien-cong-suat-30000-xe-nam-188260619145339895.chn" target="_blank" class="src-chip">Doanh nghiệp</a><a href="https://cafef.vn/xuan-thien-muon-san-xuat-xe-tai-dien-tai-ninh-binh-cong-suat-30000-xe-nam-du-kien-co-san-pham-dau-tien-vao-2027-188260619082839494.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/mua-nha-thanh-thoi-tai-chinh-suot-5-nam-voi-the-parkland.htm" target="_blank" class="news-headline-link">Mua nhà “thảnh thơi” tài chính suốt 5 năm với The Parkland</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">07:33 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/mua-nha-thanh-thoi-tai-chinh-suot-5-nam-voi-the-parkland.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/baf-viet-nam-rot-810-ty-dong-thanh-lap-4-cong-ty-con-tai-ha-noi-188260619141755769.chn" target="_blank" class="news-headline-link">Baf Việt Nam ‘rót’ 810 tỷ đồng thành lập 4 công ty con tại Hà Nội</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">14:23 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/baf-viet-nam-rot-810-ty-dong-thanh-lap-4-cong-ty-con-tai-ha-noi-188260619141755769.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/vu-lua-dao-ky-nghi-2700-ty-dong-lam-ro-nghi-van-nguoi-co-chuc-vu-chong-lung-188260619124641275.chn" target="_blank" class="news-headline-link">Vụ lừa đảo kỳ nghỉ 2.700 tỷ đồng: Làm rõ nghi vấn người có chức vụ &#39;chống lưng&#39;</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">12:46 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/vu-lua-dao-ky-nghi-2700-ty-dong-lam-ro-nghi-van-nguoi-co-chuc-vu-chong-lung-188260619124641275.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/cong-an-ha-noi-keu-goi-nan-nhan-cua-nhom-lua-dao-hop-dong-ky-nghi-som-trinh-bao.htm" target="_blank" class="news-headline-link">Công an Hà Nội kêu gọi nạn nhân của nhóm lừa đảo "hợp đồng kỳ nghỉ” sớm trình báo</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">12:41 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/cong-an-ha-noi-keu-goi-nan-nhan-cua-nhom-lua-dao-hop-dong-ky-nghi-som-trinh-bao.htm" target="_blank" class="src-chip">Kinh tế số</a><a href="https://cafef.vn/cong-an-ha-noi-tiep-nhan-don-trinh-bao-ve-hop-dong-ky-nghi-cua-cong-ty-alma-188260619124142877.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/cong-an-ha-noi-thong-tin-vu-hop-dong-ky-nghi-hon-2700-ty-dong-lien-quan-hanh-vi-lua-dao-thu-giu-hang-loat-o-to-bat-dong-san-188260619123959094.chn" target="_blank" class="news-headline-link">Công an Hà Nội thông tin vụ "hợp đồng kỳ nghỉ": Hơn 2.700 tỷ đồng liên quan hành vi lừa đảo, thu giữ hàng loạt ô tô, bất động sản</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">12:39 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/cong-an-ha-noi-thong-tin-vu-hop-dong-ky-nghi-hon-2700-ty-dong-lien-quan-hanh-vi-lua-dao-thu-giu-hang-loat-o-to-bat-dong-san-188260619123959094.chn" target="_blank" class="src-chip">Doanh nghiệp</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://cafef.vn/lpbs-thay-the-thanh-vien-hdqt-doc-lap-188260619112127592.chn" target="_blank" class="news-headline-link">LPBS thay thế thành viên HĐQT độc lập</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">11:53 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://cafef.vn/lpbs-thay-the-thanh-vien-hdqt-doc-lap-188260619112127592.chn" target="_blank" class="src-chip">Thị trường</a>
+                    </span>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content-inline">
+                     
+                    <a href="https://vneconomy.vn/tp-ho-chi-minh-triet-pha-hang-loat-duong-day-lua-dao-hop-dong-ky-nghi.htm" target="_blank" class="news-headline-link">TP Hồ Chí Minh: Triệt phá hàng loạt đường dây lừa đảo "hợp đồng kỳ nghỉ"</a>
+                    <span class="news-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="meta-time">03:30 19/06</span>
+                        <span class="meta-sep">·</span>
+                        <a href="https://vneconomy.vn/tp-ho-chi-minh-triet-pha-hang-loat-duong-day-lua-dao-hop-dong-ky-nghi.htm" target="_blank" class="src-chip">Kinh tế số</a>
+                    </span>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const navItems = document.querySelectorAll('.nav-item');
+    const panels   = document.querySelectorAll('.content-panel');
+
+    navItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            const target = this.getAttribute('data-target');
+
+            navItems.forEach(function(n) { n.classList.remove('active'); });
+            panels.forEach(function(p) { p.classList.remove('active'); });
+
+            this.classList.add('active');
+            const panel = document.getElementById(target);
+            if (panel) {
+                panel.classList.add('active');
+                // scroll content area về đầu khi chuyển tab
+                panel.parentElement.scrollTop = 0;
+            }
+        });
+    });
+</script>
+</body>
+</html>
