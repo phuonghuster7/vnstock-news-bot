@@ -11,6 +11,11 @@ import dateutil.parser as date_parser
 from urllib.parse import quote
 import json
 from vnstock import Quote
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 # Thiết lập encoding UTF-8 cho stdout trên Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -411,40 +416,75 @@ def fetch_stock_prices(tickers):
             pass # Bỏ qua nếu lỗi (mã không tồn tại, v.v.)
     return prices
 
+def call_llm_fallback(prompt):
+    # Try Gemini
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    if gemini_key:
+        try:
+            from google import genai
+            client = genai.Client(api_key=gemini_key)
+            response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
+            if response.text:
+                return response.text.strip().replace("\n", " ")
+        except Exception as e:
+            print(f"  [Gemini Lỗi] {e} -> Chuyển sang DeepSeek")
+            
+    # Try DeepSeek
+    deepseek_key = os.environ.get("DEEPSEEK_API_KEY")
+    if deepseek_key:
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=deepseek_key, base_url="https://api.deepseek.com")
+            response = client.chat.completions.create(
+                model="deepseek-chat",
+                messages=[
+                    {"role": "system", "content": "Bạn là trợ lý tài chính ngắn gọn. Viết đúng 1 câu duy nhất, không in đậm, không format."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            if response.choices:
+                return response.choices[0].message.content.strip().replace("\n", " ")
+        except Exception as e:
+            print(f"  [DeepSeek Lỗi] {e} -> Chuyển sang OpenAI")
+            
+    # Try OpenAI
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    if openai_key:
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=openai_key)
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Bạn là trợ lý tài chính ngắn gọn. Viết đúng 1 câu duy nhất, không in đậm, không format."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            if response.choices:
+                return response.choices[0].message.content.strip().replace("\n", " ")
+        except Exception as e:
+            print(f"  [OpenAI Lỗi] {e}")
+
+    return ""
+
 def summarize_clusters_with_ai(clustered_data):
-    """Sử dụng Gemini API để tóm tắt các cụm tin có nhiều bài viết hoặc thuộc nhóm cổ phiếu"""
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("⚠️ Không tìm thấy GEMINI_API_KEY, bỏ qua bước AI tóm tắt.")
-        return {}
-    
-    try:
-        from google import genai
-        client = genai.Client(api_key=api_key)
-    except ImportError:
-        print("⚠️ Thư viện google-genai chưa được cài đặt, bỏ qua bước AI tóm tắt.")
-        return {}
-    except Exception as e:
-        print("⚠️ Lỗi khởi tạo Gemini API:", e)
-        return {}
-        
+    """Sử dụng cơ chế Fallback (Gemini -> DeepSeek -> OpenAI) để tóm tắt các cụm tin"""
     summaries = {}
+    
+    if not (os.environ.get("GEMINI_API_KEY") or os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("OPENAI_API_KEY")):
+        print("⚠️ Không tìm thấy API Key nào, bỏ qua bước AI tóm tắt.")
+        return summaries
+
     print("🤖 Đang nhờ AI tóm tắt các cụm tin chính...")
     for idx, cluster in enumerate(clustered_data):
-        # Chỉ tóm tắt những cụm có >= 2 nguồn HOẶC thuộc nhóm cổ phiếu
         if len(cluster["sources"]) >= 2 or cluster["representative"].get("category") == "Tin Doanh nghiệp & Cổ phiếu":
             titles = [s["title"] for s in cluster["sources"]]
             titles_text = "\n- ".join(titles[:5]) # Lấy tối đa 5 bài
             prompt = f"Dựa vào các tiêu đề bài báo sau đây về cùng một sự kiện, hãy viết ĐÚNG 1 CÂU tóm tắt ngắn gọn nhất bản chất sự kiện và đánh giá tác động (nếu có). Không in đậm, không format, không xuống dòng.\n\nTiêu đề:\n- {titles_text}"
-            try:
-                response = client.models.generate_content(
-                    model='gemini-2.5-flash',
-                    contents=prompt,
-                )
-                if response.text:
-                    summaries[idx] = response.text.strip().replace("\n", " ")
-            except Exception as e:
-                pass # Bỏ qua lỗi timeout hoặc rate limit
+            
+            result = call_llm_fallback(prompt)
+            if result:
+                summaries[idx] = result
                 
     return summaries
 
