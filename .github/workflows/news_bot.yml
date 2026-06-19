@@ -2,15 +2,19 @@ name: Auto Update News Report
 
 on:
   schedule:
-    # Chạy tự động mỗi giờ từ 00:00 UTC đến 12:00 UTC (tức 7:00 sáng đến 7:00 tối giờ VN)
-    - cron: '0 0-12 * * 1-5' # Chạy từ T2 đến T6
-  workflow_dispatch: # Cho phép bấm chạy thủ công trên GitHub
+    # 1. Báo cáo cuối ngày: Chạy mỗi giờ từ 00:00 UTC đến 12:00 UTC
+    - cron: '0 0-12 * * 1-5'
+    # 2. Cảnh báo Intraday: Chạy mỗi 30 phút trong giờ giao dịch (02:00 UTC đến 08:00 UTC)
+    - cron: '*/30 2-8 * * 1-5'
+    # 3. Chatbot Polling: Chạy mỗi 5 phút liên tục 24/7
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-and-deploy:
+  run-bots:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -26,12 +30,44 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r experiments/scratch/requirements.txt
 
-      - name: Run News Scraper
+      - name: Export Secrets
+        run: echo "Environment configured."
         env:
           GITHUB_ACTIONS: "true"
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          VNSTOCK_API_KEY: ${{ secrets.VNSTOCK_API_KEY }}
+
+      - name: Run Chatbot (every 5 mins)
+        if: github.event.schedule == '*/5 * * * *' || github.event_name == 'workflow_dispatch'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python experiments/scratch/telegram_chatbot.py
+
+      - name: Run Intraday Alerts (every 30 mins)
+        if: github.event.schedule == '*/30 2-8 * * 1-5' || github.event_name == 'workflow_dispatch'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python experiments/scratch/run_intraday_alerts.py
+
+      - name: Run Daily Scraper (every hour)
+        if: github.event.schedule == '0 0-12 * * 1-5' || github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_ACTIONS: "true"
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           VNSTOCK_API_KEY: ${{ secrets.VNSTOCK_API_KEY }}
@@ -41,6 +77,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add experiments/scratch/docs/index.html
-          git commit -m "Auto-update Bảng tin Tài chính" || echo "No changes to commit"
+          git add experiments/scratch/docs/index.html || true
+          git add experiments/scratch/telegram_offset.txt || true
+          git commit -m "Auto-update Bảng tin & Chatbot Offset" || echo "No changes to commit"
           git push origin main
