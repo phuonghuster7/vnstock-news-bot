@@ -85,15 +85,24 @@ def main():
                 continue
                 
             text = text.strip()
-            if text.startswith("/tin "):
-                symbol = text.split(" ")[1]
-                handle_tin(chat_id, symbol)
-            elif text.startswith("/soi "):
-                symbol = text.split(" ")[1]
-                handle_soi(chat_id, symbol)
-            elif text.startswith("/chart "):
-                symbol = text.split(" ")[1]
-                handle_chart(chat_id, symbol)
+            if text.startswith("/tin"):
+                parts = text.split(" ")
+                if len(parts) > 1 and parts[1].strip():
+                    handle_tin(chat_id, parts[1].strip())
+                else:
+                    send_message(chat_id, "Sếp hãy gõ thêm mã cổ phiếu nhé! Ví dụ: /tin VCB")
+            elif text.startswith("/soi"):
+                parts = text.split(" ")
+                if len(parts) > 1 and parts[1].strip():
+                    handle_soi(chat_id, parts[1].strip())
+                else:
+                    send_message(chat_id, "Sếp hãy gõ thêm mã cổ phiếu nhé! Ví dụ: /soi FPT")
+            elif text.startswith("/chart"):
+                parts = text.split(" ")
+                if len(parts) > 1 and parts[1].strip():
+                    handle_chart(chat_id, parts[1].strip())
+                else:
+                    send_message(chat_id, "Sếp hãy gõ thêm mã cổ phiếu nhé! Ví dụ: /chart HPG")
                 
         # Lưu offset để không xử lý lại
         save_offset(highest_offset)
